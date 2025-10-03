@@ -33,7 +33,15 @@ This repository contains a minimal encrypted database system for securely storin
    export ENCRYPTION_KEY="<your generated key>"
    ```
 
-4. Start the server:
+4. (Optional) Override the database location by setting ``SECURE_STORE_DB`` to
+   an absolute or relative path. This is useful when operating the system
+   offline and syncing the encrypted store via removable media.
+
+   ```bash
+   export SECURE_STORE_DB="/path/to/secure_store.db"
+   ```
+
+5. Start the server:
 
    ```bash
    python -m server.app
@@ -73,6 +81,31 @@ curl -o output.png http://localhost:8000/records/<id>
 ```bash
 curl http://localhost:8000/records/<id>/metadata
 ```
+
+## Offline Usage
+
+The system can be used without the REST API by invoking the offline command
+line utilities:
+
+```bash
+# Initialize (or migrate) the database file
+python -m server.cli init
+
+# Store a new file with optional metadata
+python -m server.cli add path/to/image.png --metadata '{"description": "Offline import"}'
+
+# List available records
+python -m server.cli list
+
+# Retrieve a record to disk
+python -m server.cli get 1 --output restored.png
+
+# Inspect metadata for a record
+python -m server.cli metadata 1
+```
+
+All commands respect the same ``ENCRYPTION_KEY`` and ``SECURE_STORE_DB``
+environment variables as the web server, enabling a fully offline workflow.
 
 ## Security Considerations
 

@@ -1,15 +1,47 @@
 from __future__ import annotations
 
+import os
 import sqlite3
-from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator
 
-_DB_FILE = Path(__file__).resolve().parent / "secure_store.db"
+_DB_FILE_ENV_VAR = "SECURE_STORE_DB"
+
+
+def _default_db_path() -> Path:
+    """Return the default location of the SQLite file."""
+
+    return Path(__file__).resolve().parent / "secure_store.db"
+
+
+def _db_file_path() -> Path:
+    """Determine the SQLite file path.
+
+    The location can be overridden by setting the ``SECURE_STORE_DB``
+    environment variable to an absolute or relative path. Relative paths are
+    resolved against the current working directory to make offline usage with
+    custom storage locations straightforward.
+    """
+
+    env_path = os.getenv(_DB_FILE_ENV_VAR)
+    if not env_path:
+        return _default_db_path()
+
+    candidate = Path(env_path).expanduser()
+    if not candidate.is_absolute():
+        candidate = (Path.cwd() / candidate).resolve()
+    else:
+        candidate = candidate.resolve()
+    return candidate
+
+
+def get_database_path() -> Path:
+    """Public helper that exposes the resolved database path."""
+
+    return _db_file_path()
 
 
 def get_connection() -> sqlite3.Connection:
-    connection = sqlite3.connect(_DB_FILE)
+    connection = sqlite3.connect(_db_file_path())
     connection.row_factory = sqlite3.Row
     return connection
 
