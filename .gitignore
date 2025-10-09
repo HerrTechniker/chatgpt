@@ -1,0 +1,11 @@
+# Uploads
+public/downloads/*
+!public/downloads/.gitkeep
+data/booking_uploads/
+
+# Runtime data backups (falls erstellt)
+*.bak
+*.tmp
+
+# Node.js Abhängigkeiten
+node_modules/
