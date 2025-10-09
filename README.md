@@ -75,6 +75,7 @@ data/
 - Sessions werden im Speicher verwaltet und über HTTP-only Cookies gesichert.
 - Uploads landen automatisch im Ordner `public/downloads` und werden bei Bedarf ersetzt.
 - Löschen eines Admins ist nur möglich, wenn mindestens ein weiterer Admin existiert.
+- Die Admin-Anmeldung validiert Eingaben server- und clientseitig, blockiert typische SQL-Injection-Muster und protokolliert verdächtige Versuche.
 
 ## Weiterführende Anpassungen
 

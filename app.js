@@ -300,6 +300,48 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
+function sanitizeEmailInput(value) {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value.replace(/[\u0000\r\n]/g, '').trim();
+}
+
+function sanitizePasswordInput(value) {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value.replace(/[\u0000\r\n]/g, '');
+}
+
+function isValidEmailAddress(email) {
+  if (!email || email.length > 254) {
+    return false;
+  }
+  const emailPattern = /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i;
+  return emailPattern.test(email);
+}
+
+const SUSPICIOUS_LOGIN_PATTERNS = [
+  /('|")\s*or\s+1=1/i,
+  /('|")\s*or\s+('|\")[^'\"]+('|\")\s*=\s*('|\")[^'\"]+('|\")/i,
+  /;\s*(?:drop|delete|insert|update|exec|create)\b/i,
+  /\bunion\s+select\b/i,
+  /\bwaitfor\s+delay\b/i,
+  /\bsleep\s*\(/i,
+  /\bbenchmark\s*\(/i,
+  /(?:^|[\s'\"])--/i,
+  /\/\*/,
+  /\bxp_/i
+];
+
+function isSuspiciousLoginValue(value) {
+  if (typeof value !== 'string' || !value) {
+    return false;
+  }
+  return SUSPICIOUS_LOGIN_PATTERNS.some((pattern) => pattern.test(value));
+}
+
 function mergeFieldValue(container, name, value) {
   if (container[name] === undefined) {
     container[name] = value;
@@ -515,13 +557,35 @@ async function handleApiRequest(req, res, url) {
 
   if (method === 'POST' && pathname === '/api/login') {
     const body = await parseBody(req);
-    const { email, password } = body;
-    if (!email || !password) {
+    const rawEmail = body && typeof body.email === 'string' ? body.email : '';
+    const rawPassword = body && typeof body.password === 'string' ? body.password : '';
+    const sanitizedEmail = sanitizeEmailInput(rawEmail);
+    const normalizedEmail = sanitizedEmail.toLowerCase();
+    const sanitizedPassword = sanitizePasswordInput(rawPassword);
+
+    if (!sanitizedEmail || !sanitizedPassword) {
       return respondJson(res, 400, { error: 'E-Mail und Passwort sind erforderlich.' });
     }
+
+    if (!isValidEmailAddress(sanitizedEmail)) {
+      return respondJson(res, 400, { error: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.' });
+    }
+
+    if (sanitizedPassword.length > 256) {
+      return respondJson(res, 400, { error: 'Das Passwort überschreitet die maximale Länge.' });
+    }
+
+    if (isSuspiciousLoginValue(rawEmail) || isSuspiciousLoginValue(rawPassword)) {
+      console.warn('Suspicious login attempt blocked', {
+        ip: req.socket?.remoteAddress,
+        email: sanitizedEmail
+      });
+      return respondJson(res, 400, { error: 'Die Anmeldung konnte nicht verarbeitet werden.' });
+    }
+
     const users = await readUsers();
-    const user = users.find((u) => u.email.toLowerCase() === String(email).toLowerCase());
-    if (!user || !verifyPassword(password, user.password)) {
+    const user = users.find((u) => u.email.toLowerCase() === normalizedEmail);
+    if (!user || !verifyPassword(sanitizedPassword, user.password)) {
       return respondJson(res, 401, { error: 'Ungültige Zugangsdaten.' });
     }
     const sessionId = createSession(user.id);
