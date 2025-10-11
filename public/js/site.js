@@ -7,12 +7,13 @@
   const navLinks = document.querySelectorAll('.main-nav a');
   const path = window.location.pathname.replace(/\/$/, '') || '/';
   const aliasMap = {
-    '/impressum': '/legal',
-    '/datenschutz': '/legal',
-    '/legal.html': '/legal',
     '/index': '/',
     '/index.html': '/',
-    '/internships.html': '/internships'
+    '/internships.html': '/internships',
+    '/impressum.html': '/impressum',
+    '/datenschutz.html': '/datenschutz',
+    '/legal': '/impressum',
+    '/legal.html': '/impressum'
   };
   const normalizedPath = aliasMap[path] || path;
 

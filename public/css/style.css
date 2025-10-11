@@ -1010,6 +1010,20 @@ input[type='file'] {
   line-height: 1.6;
 }
 
+.legal-placeholder {
+  background: rgba(15, 23, 42, 0.02);
+  border: 1px dashed rgba(15, 23, 42, 0.35);
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.legal-placeholder strong {
+  color: var(--primary);
+  font-style: normal;
+}
+
 .legal-note {
   margin: 0;
   font-size: 0.95rem;

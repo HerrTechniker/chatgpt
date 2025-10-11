@@ -5,6 +5,7 @@ Diese Anwendung stellt eine mehrseitige Marketing-Website inklusive Administrati
 ## Features
 
 - **Mehrseitige Website** (Startseite, Lösungen, Service, Branchen, Downloads, Unternehmen, Kontakt, Praktika)
+- **Eigenständige Impressum- und Datenschutzseiten** zur Übernahme der bestehenden Rechtstexte
 - **Buchungskalender für Praktika** mit Verfügbarkeitsübersicht, Anfrageformular und Bestätigungs-E-Mails
 - **Download-Bereich** mit dynamischer Liste, die vom Admin-Interface gepflegt wird
 - **Admin-Dashboard**
@@ -63,6 +64,13 @@ data/
   downloads.json       # Download-Einträge
   bookings.json        # Praktikumsanfragen
 ```
+
+## Rechtstexte übernehmen
+
+Die Dateien `public/pages/impressum.html` und `public/pages/datenschutz.html` enthalten strukturierte Platzhalter, die durch die
+bestehenden Texte von hps-power.com ersetzt werden müssen. Kopieren Sie das Impressum und die Datenschutzerklärung der
+Originalseite Abschnitt für Abschnitt in die markierten Bereiche, damit alle gesetzlich relevanten Angaben unverändert
+übernommen werden.
 
 ## Rollen & Berechtigungen
 

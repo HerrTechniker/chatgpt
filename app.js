@@ -36,10 +36,10 @@ const pageRoutes = {
   '/about': 'about.html',
   '/internships': 'internships.html',
   '/internships.html': 'internships.html',
-  '/legal': 'legal.html',
-  '/legal.html': 'legal.html',
-  '/impressum': 'legal.html',
-  '/datenschutz': 'legal.html'
+  '/impressum': 'impressum.html',
+  '/impressum.html': 'impressum.html',
+  '/datenschutz': 'datenschutz.html',
+  '/datenschutz.html': 'datenschutz.html'
 };
 
 async function ensureDataFiles() {
@@ -1166,6 +1166,7 @@ async function handleAdminPage(req, res, targetFile) {
 async function handleRequest(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
+  const normalizedPath = pathname !== '/' ? pathname.replace(/\/$/, '') : pathname;
 
   if (pathname.startsWith('/api/')) {
     try {
@@ -1181,24 +1182,30 @@ async function handleRequest(req, res) {
     return;
   }
 
-  if (pathname === '/login') {
+  if (normalizedPath === '/login') {
     res.writeHead(302, { Location: '/admin/login' });
     res.end();
     return;
   }
 
-  if (pathname === '/admin/login') {
+  if (normalizedPath === '/legal' || normalizedPath === '/legal.html') {
+    res.writeHead(301, { Location: '/impressum' });
+    res.end();
+    return;
+  }
+
+  if (normalizedPath === '/admin/login') {
     await serveFile(res, path.join(PUBLIC_DIR, 'admin', 'login.html'));
     return;
   }
 
-  if (pathname === '/admin' || pathname === '/admin/') {
+  if (normalizedPath === '/admin') {
     await handleAdminPage(req, res, path.join(PUBLIC_DIR, 'admin', 'dashboard.html'));
     return;
   }
 
-  if (pageRoutes[pathname]) {
-    await serveFile(res, path.join(PUBLIC_DIR, 'pages', pageRoutes[pathname]));
+  if (pageRoutes[normalizedPath]) {
+    await serveFile(res, path.join(PUBLIC_DIR, 'pages', pageRoutes[normalizedPath]));
     return;
   }
 
