@@ -35,7 +35,11 @@ const pageRoutes = {
   '/contact': 'contact.html',
   '/about': 'about.html',
   '/internships': 'internships.html',
-  '/internships.html': 'internships.html'
+  '/internships.html': 'internships.html',
+  '/legal': 'legal.html',
+  '/legal.html': 'legal.html',
+  '/impressum': 'legal.html',
+  '/datenschutz': 'legal.html'
 };
 
 async function ensureDataFiles() {

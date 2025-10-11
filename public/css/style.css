@@ -59,11 +59,24 @@ a:focus {
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.logo img {
+  height: clamp(2.25rem, 4vw, 3rem);
+  width: auto;
+  display: block;
+}
+
+.logo span {
+  font-size: 0.9rem;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-decoration: none;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .main-nav {
@@ -944,6 +957,94 @@ input[type='file'] {
   margin-top: 1rem;
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.legal-page {
+  padding: clamp(3rem, 5vw, 5rem) clamp(1.5rem, 6vw, 5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 4vw, 3.5rem);
+  background: var(--background);
+}
+
+.legal-section {
+  background: var(--surface);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.legal-section h2 {
+  margin: 0;
+}
+
+.legal-intro {
+  margin: 0;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.legal-list {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+}
+
+.legal-list div {
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 1rem;
+  padding: 1.1rem 1.3rem;
+}
+
+.legal-list dt {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.legal-list dd {
+  margin: 0.4rem 0 0;
+  line-height: 1.6;
+}
+
+.legal-note {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.legal-bullet {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.legal-bullet li {
+  background: rgba(15, 23, 42, 0.05);
+  border-radius: 1rem;
+  padding: 0.9rem 1.1rem;
+  line-height: 1.6;
+}
+
+.legal-bullet strong {
+  display: block;
+  color: var(--primary);
+  margin-bottom: 0.3rem;
+}
+
+@media (min-width: 768px) {
+  .legal-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .legal-list div {
+    padding: 1.4rem 1.5rem;
+  }
 }
 
 .legend {

@@ -5,9 +5,20 @@
   }
 
   const navLinks = document.querySelectorAll('.main-nav a');
-  const path = window.location.pathname;
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  const aliasMap = {
+    '/impressum': '/legal',
+    '/datenschutz': '/legal',
+    '/legal.html': '/legal',
+    '/index': '/',
+    '/index.html': '/',
+    '/internships.html': '/internships'
+  };
+  const normalizedPath = aliasMap[path] || path;
+
   navLinks.forEach((link) => {
-    if (link.getAttribute('href') === path) {
+    const href = link.getAttribute('href');
+    if (href === normalizedPath) {
       link.classList.add('active');
     }
   });
