@@ -1,0 +1,14 @@
+{
+  "name": "hps-power-site",
+  "version": "1.0.0",
+  "description": "Mehrseitige Unternehmensseite mit Admin-Interface ohne externe Abhängigkeiten.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "sync:legacy": "node scripts/sync-legacy-content.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "nodemailer": "^6.9.8"
+  }
+}

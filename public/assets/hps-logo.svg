@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 64" role="img" aria-labelledby="title desc">
+  <title id="title">HPS Power Solutions Logo</title>
+  <desc id="desc">Monogramm mit den Buchstaben HPS in Blau- und Grüntönen</desc>
+  <defs>
+    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b3d91" />
+      <stop offset="100%" stop-color="#1f6acb" />
+    </linearGradient>
+    <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3cb878" />
+      <stop offset="100%" stop-color="#7ed957" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="10" width="64" height="44" rx="6" fill="url(#grad-blue)" />
+  <path d="M18 24h8v8h12v-8h8v24h-8v-8H26v8h-8z" fill="#fff" />
+  <path d="M86 22c10.6 0 18 7 18 15.9S96.6 53.8 86 53.8H68V10.2h18z" fill="url(#grad-blue)" />
+  <path d="M86 46.2c5.9 0 10-3.5 10-8.3 0-4.8-4.1-8.3-10-8.3h-7.8v16.6z" fill="#fff" />
+  <path d="M118 18.5h12.9c9.3 0 15.3 4.7 15.3 11.8 0 5.3-3.3 9.3-8.5 10.9l9.9 12.8h-10.2l-8.5-11.4h-2.8v11.4H118zm12.5 18.6c3.9 0 6.3-2.1 6.3-5.4 0-3.3-2.4-5.3-6.3-5.3h-4.5v10.6z" fill="#0b3d91" />
+  <path d="M169 18.5c11 0 18.5 6.2 18.5 15.6 0 6.5-3.5 11.2-9.6 13.4l10.5 14h-10.7l-9.3-12.6h-6V61h-9.8V18.5zm-0.3 22.4c5.4 0 8.8-3 8.8-7.5 0-4.7-3.4-7.6-8.8-7.6h-6.4v15.1z" fill="#3cb878" />
+  <path d="M208.4 18.5c6.9 0 11.6 4.3 11.6 10.4 0 4.2-2.2 7.5-6 9.2l7.2 11.8h-10.5l-6.3-10.6h-3.5V50h-9.6V18.5zm-0.5 14.3c2.5 0 3.9-1.3 3.9-3.4 0-2-1.4-3.3-3.9-3.3h-4.5v6.7z" fill="url(#grad-green)" />
+</svg>

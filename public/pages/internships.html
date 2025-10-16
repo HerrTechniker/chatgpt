@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Praktika &amp; Karrierestart – HPS Power Solutions</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="subpage-header">
+      <div class="top-bar">
+        <a class="logo" href="/de/" aria-label="Startseite HPS Power Solutions">
+          <img src="/assets/hps-logo.svg" alt="Logo von HPS Power Solutions" />
+          <span>HPS Power Solutions</span>
+        </a>
+        <nav class="main-nav" aria-label="Hauptnavigation">
+          <a href="/de/solutions">Lösungen</a>
+          <a href="/de/services">Service</a>
+          <a href="/de/industries">Branchen</a>
+          <a href="/de/downloads">Downloads</a>
+          <a href="/de/virtual-tour">360° Rundgang</a>
+          <a href="/de/about">Unternehmen</a>
+          <a href="/de/internships">Praktika</a>
+          <a href="/de/contact">Kontakt</a>
+          <a href="/de/impressum">Impressum</a>
+          <a href="/de/datenschutz">Datenschutz</a>
+        </nav>
+        <div class="language-switcher" data-lang-switcher aria-label="Sprachauswahl">
+          <button type="button" data-lang="de">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div class="header-content">
+        <h1>Praktika und Werkstudententätigkeiten</h1>
+        <p>
+          Sammle praktische Erfahrungen in der Leistungselektronik, Automatisierung und Softwareentwicklung.
+          Unser Team begleitet dich vom ersten Tag an und sorgt für eine steile Lernkurve.
+        </p>
+      </div>
+    </header>
+
+    <main class="content-section">
+      <section class="booking-wrapper" aria-labelledby="booking-heading">
+        <div class="booking-intro">
+          <h2 id="booking-heading">Dein Einstieg bei HPS Power</h2>
+          <p>
+            Ob Pflichtpraktikum, freiwilliges Praktikum oder Werkstudententätigkeit – wir freuen uns auf
+            engagierte Talente, die Energietechnik, Automatisierung und Digitalisierung gemeinsam mit uns
+            gestalten möchten. Wähle im Kalender einen freien Zeitraum aus und sende uns deine Anfrage. Du
+            erhältst direkt eine Eingangsbestätigung per E-Mail.
+          </p>
+          <ul class="feature-list">
+            <li>Flexible Starttermine und individuelle Einsatzdauer</li>
+            <li>Mentoring durch erfahrene Ingenieur:innen und Entwickler:innen</li>
+            <li>Moderne Ausstattung, agile Arbeitsweise und familiäres Team</li>
+          </ul>
+          <div class="info-box">
+            <strong>Hinweis:</strong>
+            <p>
+              Nach dem Absenden melden wir uns bei dir, um weitere Details wie Projektzuordnung, Vertrag und
+              benötigte Unterlagen zu besprechen.
+            </p>
+          </div>
+        </div>
+        <div class="booking-panel" aria-live="polite">
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <button class="calendar-nav" id="calendar-prev" type="button" aria-label="Voriger Monat">
+                ‹
+              </button>
+              <h3 id="calendar-month">Kalender</h3>
+              <button class="calendar-nav" id="calendar-next" type="button" aria-label="Nächster Monat">
+                ›
+              </button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid" role="grid" aria-labelledby="calendar-month"></div>
+            <div class="calendar-legend">
+              <span class="legend free">frei</span>
+              <span class="legend pending">angefragt</span>
+              <span class="legend confirmed">bestätigt</span>
+            </div>
+          </div>
+          <form class="form-grid" id="booking-form" enctype="multipart/form-data">
+            <div>
+              <label for="booking-name">Name *</label>
+              <input id="booking-name" name="name" type="text" required autocomplete="name" />
+            </div>
+            <div>
+              <label for="booking-email">E-Mail *</label>
+              <input id="booking-email" name="email" type="email" required autocomplete="email" />
+            </div>
+            <div>
+              <label for="booking-phone">Telefon</label>
+              <input id="booking-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+            <div>
+              <label for="booking-start-date">Startdatum *</label>
+              <input id="booking-start-date" name="startDate" type="date" required />
+            </div>
+            <div>
+              <label for="booking-start-time">Startzeit *</label>
+              <input id="booking-start-time" name="startTime" type="time" required value="09:00" />
+            </div>
+            <div>
+              <label for="booking-end-date">Enddatum *</label>
+              <input id="booking-end-date" name="endDate" type="date" required />
+            </div>
+            <div>
+              <label for="booking-end-time">Endzeit *</label>
+              <input id="booking-end-time" name="endTime" type="time" required value="17:00" />
+            </div>
+            <div class="span-2">
+              <label for="booking-note">Motivation &amp; Interessensgebiete</label>
+              <textarea id="booking-note" name="note" rows="4" placeholder="Erzähle uns kurz, was dich interessiert..."></textarea>
+            </div>
+            <div class="upload-group span-2">
+              <div>
+                <h4>Unterlagen</h4>
+                <p class="form-hint">
+                  Bitte lade deine wichtigsten Dokumente hoch. Erlaubte Formate: PDF, DOCX, JPG und PNG.
+                </p>
+              </div>
+              <div class="upload-grid">
+                <div>
+                  <label for="booking-cv">Lebenslauf *</label>
+                  <input
+                    id="booking-cv"
+                    name="cv"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.rtf"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="booking-application">Anschreiben *</label>
+                  <input
+                    id="booking-application"
+                    name="application"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.rtf"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="booking-photo">Foto</label>
+                  <input id="booking-photo" name="photo" type="file" accept="image/*" />
+                </div>
+              </div>
+              <div>
+                <label for="booking-documents">Weitere Dokumente (z. B. Zeugnisse, Auszeichnungen)</label>
+                <input
+                  id="booking-documents"
+                  name="documents"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.odt,.rtf"
+                  multiple
+                />
+                <p class="form-hint">Du kannst mehrere Dateien auswählen.</p>
+              </div>
+            </div>
+            <div class="form-actions span-2">
+              <button class="btn btn-primary" type="submit">Anfrage senden</button>
+              <button class="btn btn-outline" id="booking-reset" type="button">Zurücksetzen</button>
+            </div>
+            <div class="notice hidden span-2" id="booking-notice" role="status"></div>
+          </form>
+        </div>
+      </section>
+
+      <section class="faq" aria-label="Häufige Fragen">
+        <h2>Häufige Fragen zum Praktikum</h2>
+        <div class="faq-grid">
+          <article>
+            <h3>Welche Fachrichtungen suchen wir?</h3>
+            <p>
+              Wir freuen uns über Bewerbungen aus den Bereichen Elektrotechnik, Informatik, Mechatronik,
+              Wirtschaftsingenieurwesen und vergleichbaren Studiengängen.
+            </p>
+          </article>
+          <article>
+            <h3>Wie lange dauert ein Praktikum?</h3>
+            <p>
+              Pflichtpraktika dauern in der Regel 3–6 Monate. Freiwillige Praktika und Werkstudententätigkeiten
+              vereinbaren wir individuell abhängig von Studienfortschritt und Wunschumfang.
+            </p>
+          </article>
+          <article>
+            <h3>Gibt es eine Vergütung?</h3>
+            <p>
+              Ja, alle Praktika und Werkstudententätigkeiten werden fair vergütet. Details besprechen wir im
+              persönlichen Gespräch.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <h3>HPS Power Solutions</h3>
+          <p>Engineering für Energieversorgung, Antriebstechnik und industrielle Digitalisierung.</p>
+        </div>
+        <div>
+          <h4>Kontakt</h4>
+          <ul>
+            <li>Telefon: +49 1234 56789</li>
+            <li>E-Mail: info@hps-power.local</li>
+            <li>Adresse: Industriestraße 12, 86150 Augsburg</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Schnellzugriff</h4>
+          <ul>
+            <li><a href="/de/downloads">Download-Bereich</a></li>
+            <li><a href="/de/virtual-tour">360° Rundgang</a></li>
+            <li><a href="/de/about">Über uns</a></li>
+            <li><a href="/de/internships">Praktika</a></li>
+            <li><a href="/de/contact">Support</a></li>
+            <li><a href="/de/impressum">Impressum</a></li>
+            <li><a href="/de/datenschutz">Datenschutz</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-meta">© <span id="year"></span> HPS Power Solutions. Alle Rechte vorbehalten.</p>
+    </footer>
+    <script src="/js/site.js"></script>
+    <script src="/js/internships.js"></script>
+  </body>
+</html>

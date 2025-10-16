@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Internships &amp; Early Careers – HPS Power Solutions</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="subpage-header">
+      <div class="top-bar">
+        <a class="logo" href="/en" aria-label="HPS Power Solutions home">
+          <img src="/assets/hps-logo.svg" alt="HPS Power Solutions logo" />
+          <span>HPS Power Solutions</span>
+        </a>
+        <nav class="main-nav" aria-label="Primary navigation">
+          <a href="/en/solutions">Solutions</a>
+          <a href="/en/services">Services</a>
+          <a href="/en/industries">Industries</a>
+          <a href="/en/downloads">Downloads</a>
+          <a href="/en/virtual-tour">360° Tour</a>
+          <a href="/en/about">Company</a>
+          <a href="/en/internships">Internships</a>
+          <a href="/en/contact">Contact</a>
+          <a href="/en/imprint">Imprint</a>
+          <a href="/en/privacy">Privacy</a>
+        </nav>
+        <div class="language-switcher" data-lang-switcher aria-label="Language selection">
+          <button type="button" data-lang="de">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div class="header-content">
+        <h1>Internships and working students</h1>
+        <p>
+          Gain hands-on experience in power electronics, automation, and software development. Our team supports you from day
+          one and ensures a steep learning curve.
+        </p>
+      </div>
+    </header>
+
+    <main class="content-section">
+      <section class="booking-wrapper" aria-labelledby="booking-heading">
+        <div class="booking-intro">
+          <h2 id="booking-heading">Your start at HPS Power</h2>
+          <p>
+            Whether it is a mandatory internship, voluntary placement, or working student role – we look forward to motivated
+            talent eager to shape energy technology, automation, and digitalization with us. Choose an available slot in the
+            calendar and send us your request. You will receive an email confirmation immediately.
+          </p>
+          <ul class="feature-list">
+            <li>Flexible start dates and individual durations</li>
+            <li>Mentoring by experienced engineers and developers</li>
+            <li>Modern equipment, agile workflows, and a supportive team</li>
+          </ul>
+          <div class="info-box">
+            <strong>Note:</strong>
+            <p>
+              After submitting we will reach out to discuss project allocation, contracts, and any required documents.
+            </p>
+          </div>
+        </div>
+        <div class="booking-panel" aria-live="polite">
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <button class="calendar-nav" id="calendar-prev" type="button" aria-label="Previous month">
+                ‹
+              </button>
+              <h3 id="calendar-month">Calendar</h3>
+              <button class="calendar-nav" id="calendar-next" type="button" aria-label="Next month">
+                ›
+              </button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid" role="grid" aria-labelledby="calendar-month"></div>
+            <div class="calendar-legend">
+              <span class="legend free">free</span>
+              <span class="legend pending">requested</span>
+              <span class="legend confirmed">confirmed</span>
+            </div>
+          </div>
+          <form class="form-grid" id="booking-form" enctype="multipart/form-data">
+            <div>
+              <label for="booking-name">Name *</label>
+              <input id="booking-name" name="name" type="text" required autocomplete="name" />
+            </div>
+            <div>
+              <label for="booking-email">Email *</label>
+              <input id="booking-email" name="email" type="email" required autocomplete="email" />
+            </div>
+            <div>
+              <label for="booking-phone">Phone</label>
+              <input id="booking-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+            <div>
+              <label for="booking-start-date">Start date *</label>
+              <input id="booking-start-date" name="startDate" type="date" required />
+            </div>
+            <div>
+              <label for="booking-start-time">Start time *</label>
+              <input id="booking-start-time" name="startTime" type="time" required value="09:00" />
+            </div>
+            <div>
+              <label for="booking-end-date">End date *</label>
+              <input id="booking-end-date" name="endDate" type="date" required />
+            </div>
+            <div>
+              <label for="booking-end-time">End time *</label>
+              <input id="booking-end-time" name="endTime" type="time" required value="17:00" />
+            </div>
+            <div class="span-2">
+              <label for="booking-note">Motivation &amp; areas of interest</label>
+              <textarea
+                id="booking-note"
+                name="note"
+                rows="4"
+                placeholder="Tell us briefly what drives you..."
+              ></textarea>
+            </div>
+            <div class="upload-group span-2">
+              <div>
+                <h4>Documents</h4>
+                <p class="form-hint">
+                  Please upload your key documents. Accepted formats: PDF, DOCX, JPG, and PNG.
+                </p>
+              </div>
+              <div class="upload-grid">
+                <div>
+                  <label for="booking-cv">CV *</label>
+                  <input
+                    id="booking-cv"
+                    name="cv"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.rtf"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="booking-application">Cover letter *</label>
+                  <input
+                    id="booking-application"
+                    name="application"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.rtf"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="booking-photo">Photo</label>
+                  <input id="booking-photo" name="photo" type="file" accept="image/*" />
+                </div>
+              </div>
+              <div>
+                <label for="booking-documents">Additional documents (e.g., certificates, awards)</label>
+                <input
+                  id="booking-documents"
+                  name="documents"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.odt,.rtf"
+                  multiple
+                />
+                <p class="form-hint">You can select multiple files.</p>
+              </div>
+            </div>
+            <div class="form-actions span-2">
+              <button class="btn btn-primary" type="submit">Send request</button>
+              <button class="btn btn-outline" id="booking-reset" type="button">Reset</button>
+            </div>
+            <div class="notice hidden span-2" id="booking-notice" role="status"></div>
+          </form>
+        </div>
+      </section>
+
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2>Internship FAQ</h2>
+        <div class="faq-grid">
+          <article>
+            <h3>Which disciplines are we looking for?</h3>
+            <p>
+              We welcome applications from electrical engineering, computer science, mechatronics, industrial engineering, and
+              related fields.
+            </p>
+          </article>
+          <article>
+            <h3>How long does an internship last?</h3>
+            <p>
+              Mandatory internships usually run 3–6 months. We define voluntary internships and working student positions
+              individually based on your study progress and availability.
+            </p>
+          </article>
+          <article>
+            <h3>Is the internship paid?</h3>
+            <p>
+              Yes, all internships and working student roles are paid fairly. We discuss the details during the personal
+              interview.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <h3>HPS Power Solutions</h3>
+          <p>Engineering for power supply, drive technology, and industrial digitalization.</p>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li>Phone: +49 1234 56789</li>
+            <li>Email: info@hps-power.local</li>
+            <li>Address: Industriestrasse 12, 86150 Augsburg</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quick links</h4>
+          <ul>
+            <li><a href="/en/downloads">Download area</a></li>
+            <li><a href="/en/virtual-tour">360° Tour</a></li>
+            <li><a href="/en/internships">Internships</a></li>
+            <li><a href="/en/about">About us</a></li>
+            <li><a href="/en/contact">Support</a></li>
+            <li><a href="/en/imprint">Imprint</a></li>
+            <li><a href="/en/privacy">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-meta">© <span id="year"></span> HPS Power Solutions. All rights reserved.</p>
+    </footer>
+    <script src="/js/site.js"></script>
+    <script src="/js/internships.js"></script>
+  </body>
+</html>
