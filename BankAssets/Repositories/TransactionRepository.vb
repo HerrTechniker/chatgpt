@@ -77,5 +77,16 @@ Namespace BankAssets.Repositories
 
             Return balances
         End Function
+
+        Public Function GetTransactionYearRange(accountId As Integer) As (Integer?, Integer?)
+            Dim transactions = GetTransactions(accountId, Nothing, Nothing)
+            If transactions.Count = 0 Then
+                Return (Nothing, Nothing)
+            End If
+
+            Dim minYear = transactions.Min(Function(t) t.BookingDate.Year)
+            Dim maxYear = transactions.Max(Function(t) t.BookingDate.Year)
+            Return (minYear, maxYear)
+        End Function
     End Class
 End Namespace

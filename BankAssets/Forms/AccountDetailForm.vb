@@ -12,8 +12,8 @@ Namespace BankAssets.Forms
         Private ReadOnly _accountRepository As Repositories.AccountRepository
         Private ReadOnly _transactionList As ListView
         Private ReadOnly _chart As Chart
-        Private ReadOnly _fromPicker As DateTimePicker
-        Private ReadOnly _toPicker As DateTimePicker
+        Private ReadOnly _rangeCombo As ComboBox
+        Private ReadOnly _yearRange As (Integer?, Integer?)
 
         Public Sub New(database As Data.Database, account As Models.Account)
             _database = database
@@ -35,17 +35,11 @@ Namespace BankAssets.Forms
                 .AutoSize = True
             }
 
-            _fromPicker = New DateTimePicker With {
+            _rangeCombo = New ComboBox With {
                 .Left = 130,
                 .Top = 10,
-                .Width = 120,
-                .Format = DateTimePickerFormat.Short
-            }
-            _toPicker = New DateTimePicker With {
-                .Left = 270,
-                .Top = 10,
-                .Width = 120,
-                .Format = DateTimePickerFormat.Short
+                .Width = 200,
+                .DropDownStyle = ComboBoxStyle.DropDownList
             }
             Dim applyButton = New Button With {
                 .Text = "Anwenden",
@@ -90,15 +84,14 @@ Namespace BankAssets.Forms
             _chart.Series.Add(series)
 
             Controls.Add(filterLabel)
-            Controls.Add(_fromPicker)
-            Controls.Add(_toPicker)
+            Controls.Add(_rangeCombo)
             Controls.Add(applyButton)
             Controls.Add(addTransactionButton)
             Controls.Add(_transactionList)
             Controls.Add(_chart)
 
-            _fromPicker.Value = Date.Today.AddMonths(-6)
-            _toPicker.Value = Date.Today
+            _yearRange = _transactionRepository.GetTransactionYearRange(_account.Id)
+            LoadRanges()
 
             LoadTransactions()
             LoadChart()
@@ -106,7 +99,9 @@ Namespace BankAssets.Forms
 
         Private Sub LoadTransactions()
             _transactionList.Items.Clear()
-            Dim transactions = _transactionRepository.GetTransactions(_account.Id, _fromPicker.Value.Date, _toPicker.Value.Date)
+            Dim selectedRange = TryCast(_rangeCombo.SelectedItem, RangeOption)
+            Dim range = If(selectedRange Is Nothing, GetAllRange(), selectedRange)
+            Dim transactions = _transactionRepository.GetTransactions(_account.Id, range.FromDate, range.ToDate)
             For Each entry In transactions
                 Dim item = New ListViewItem(entry.BookingDate.ToString("d", CultureInfo.GetCultureInfo("de-DE")))
                 item.SubItems.Add(entry.Counterparty)
@@ -143,8 +138,50 @@ Namespace BankAssets.Forms
                 _accountRepository.UpdateBalance(_account.Id, _account.CurrentBalance)
             End Using
 
+            If Not _yearRange.Item1.HasValue OrElse Not _yearRange.Item2.HasValue Then
+                _yearRange = _transactionRepository.GetTransactionYearRange(_account.Id)
+                LoadRanges()
+            End If
+
             LoadTransactions()
             LoadChart()
         End Sub
+
+        Private Sub LoadRanges()
+            _rangeCombo.Items.Clear()
+            _rangeCombo.Items.Add(GetAllRange())
+            _rangeCombo.Items.Add(New RangeOption("Letzten 3 Monate", Date.Today.AddMonths(-3).Date, Date.Today))
+            _rangeCombo.Items.Add(New RangeOption("Letzten 6 Monate", Date.Today.AddMonths(-6).Date, Date.Today))
+
+            If _yearRange.Item1.HasValue AndAlso _yearRange.Item2.HasValue Then
+                For year As Integer = _yearRange.Item1.Value To _yearRange.Item2.Value
+                    Dim fromDate = New DateTime(year, 1, 1)
+                    Dim toDate = New DateTime(year, 12, 31)
+                    _rangeCombo.Items.Add(New RangeOption(year.ToString(), fromDate, toDate))
+                Next
+            End If
+
+            _rangeCombo.SelectedIndex = 0
+        End Sub
+
+        Private Function GetAllRange() As RangeOption
+            Return New RangeOption("Alle Transaktionen", Nothing, Nothing)
+        End Function
+
+        Private Class RangeOption
+            Public Sub New(label As String, fromDate As DateTime?, toDate As DateTime?)
+                Me.Label = label
+                Me.FromDate = fromDate
+                Me.ToDate = toDate
+            End Sub
+
+            Public ReadOnly Property Label As String
+            Public ReadOnly Property FromDate As DateTime?
+            Public ReadOnly Property ToDate As DateTime?
+
+            Public Overrides Function ToString() As String
+                Return Label
+            End Function
+        End Class
     End Class
 End Namespace
