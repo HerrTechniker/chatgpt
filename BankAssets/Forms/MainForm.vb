@@ -27,6 +27,8 @@ Namespace BankAssets.Forms
             Height = 700
             StartPosition = FormStartPosition.CenterScreen
 
+            Theme.Apply(Me)
+
             Dim addAccountButton = New Button With {
                 .Text = "Offline-Konto hinzufügen",
                 .Top = 15,
@@ -51,6 +53,7 @@ Namespace BankAssets.Forms
                 .Width = 520,
                 .Height = 580
             }
+            _listView.GridLines = False
             _listView.Columns.Add("Konto", 180)
             _listView.Columns.Add("IBAN", 180)
             _listView.Columns.Add("Saldo", 120)

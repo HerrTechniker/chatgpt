@@ -1,3 +1,4 @@
+Imports System.Drawing
 Imports System.IO
 Imports System.Windows.Forms
 
@@ -16,6 +17,8 @@ Namespace BankAssets.Forms
             Height = 180
             StartPosition = FormStartPosition.CenterScreen
 
+            Theme.Apply(Me)
+
             Dim instructionLabel = New Label With {
                 .Text = "Bitte wählen Sie den Ordner für die SQLite-Datenbank aus.",
                 .AutoSize = True,
@@ -27,7 +30,8 @@ Namespace BankAssets.Forms
                 .Left = 20,
                 .Top = 55,
                 .Width = 400,
-                .ReadOnly = True
+                .ReadOnly = True,
+                .BackColor = Color.White
             }
 
             Dim browseButton = New Button With {

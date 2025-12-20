@@ -20,6 +20,8 @@ Namespace BankAssets.Forms
             Height = 360
             StartPosition = FormStartPosition.CenterParent
 
+            Theme.Apply(Me)
+
             Dim templateLabel = New Label With {.Text = "Bankvorlage", .Left = 20, .Top = 20, .AutoSize = True}
             _bankCombo = New ComboBox With {.Left = 150, .Top = 16, .Width = 250, .DropDownStyle = ComboBoxStyle.DropDownList}
             _bankCombo.Items.AddRange(_templates.Cast(Of Object).ToArray())

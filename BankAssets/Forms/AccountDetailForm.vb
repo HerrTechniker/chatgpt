@@ -26,6 +26,8 @@ Namespace BankAssets.Forms
             Height = 700
             StartPosition = FormStartPosition.CenterScreen
 
+            Theme.Apply(Me)
+
             Dim filterLabel = New Label With {
                 .Text = "Filter Zeitraum:",
                 .Left = 20,
@@ -69,6 +71,7 @@ Namespace BankAssets.Forms
                 .Width = 600,
                 .Height = 580
             }
+            _transactionList.GridLines = False
             _transactionList.Columns.Add("Datum", 100)
             _transactionList.Columns.Add("Gegenpartei", 160)
             _transactionList.Columns.Add("Verwendungszweck", 220)

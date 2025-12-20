@@ -19,6 +19,8 @@ Namespace BankAssets.Forms
             Height = 280
             StartPosition = FormStartPosition.CenterParent
 
+            Theme.Apply(Me)
+
             Dim amountLabel = New Label With {.Text = "Betrag", .Left = 20, .Top = 20, .AutoSize = True}
             _amountBox = New TextBox With {.Left = 150, .Top = 16, .Width = 200}
 
