@@ -10,7 +10,7 @@ Namespace BankAssets.Forms
         Private ReadOnly _account As Models.Account
         Private ReadOnly _transactionRepository As Repositories.TransactionRepository
         Private ReadOnly _accountRepository As Repositories.AccountRepository
-        Private ReadOnly _transactionList As ListView
+        Private ReadOnly _transactionsPanel As FlowLayoutPanel
         Private ReadOnly _chart As Chart
         Private ReadOnly _rangeCombo As ComboBox
         Private ReadOnly _yearRange As (Integer?, Integer?)
@@ -25,6 +25,8 @@ Namespace BankAssets.Forms
             Width = 1000
             Height = 700
             StartPosition = FormStartPosition.CenterScreen
+            KeyPreview = True
+            AddHandler KeyDown, AddressOf OnFormKeyDown
 
             Theme.Apply(Me)
 
@@ -57,19 +59,15 @@ Namespace BankAssets.Forms
             }
             AddHandler addTransactionButton.Click, AddressOf OnAddTransaction
 
-            _transactionList = New ListView With {
-                .View = View.Details,
-                .FullRowSelect = True,
+            _transactionsPanel = New FlowLayoutPanel With {
                 .Left = 20,
                 .Top = 45,
                 .Width = 600,
-                .Height = 580
+                .Height = 580,
+                .AutoScroll = True,
+                .FlowDirection = FlowDirection.TopDown,
+                .WrapContents = False
             }
-            _transactionList.GridLines = False
-            _transactionList.Columns.Add("Datum", 100)
-            _transactionList.Columns.Add("Gegenpartei", 160)
-            _transactionList.Columns.Add("Verwendungszweck", 220)
-            _transactionList.Columns.Add("Betrag", 100)
 
             _chart = New Chart With {
                 .Left = 640,
@@ -77,9 +75,16 @@ Namespace BankAssets.Forms
                 .Width = 320,
                 .Height = 300
             }
-            _chart.ChartAreas.Add(New ChartArea("History"))
+            Dim chartArea = New ChartArea("History")
+            chartArea.AxisX.IntervalType = DateTimeIntervalType.Months
+            chartArea.AxisX.LabelStyle.Format = "MMM yyyy"
+            _chart.ChartAreas.Add(chartArea)
             Dim series = New Series("Saldo") With {
-                .ChartType = SeriesChartType.Line
+                .ChartType = SeriesChartType.Line,
+                .BorderWidth = 3,
+                .MarkerStyle = MarkerStyle.Circle,
+                .MarkerSize = 6,
+                .XValueType = ChartValueType.DateTime
             }
             _chart.Series.Add(series)
 
@@ -87,7 +92,7 @@ Namespace BankAssets.Forms
             Controls.Add(_rangeCombo)
             Controls.Add(applyButton)
             Controls.Add(addTransactionButton)
-            Controls.Add(_transactionList)
+            Controls.Add(_transactionsPanel)
             Controls.Add(_chart)
 
             _yearRange = _transactionRepository.GetTransactionYearRange(_account.Id)
@@ -98,16 +103,19 @@ Namespace BankAssets.Forms
         End Sub
 
         Private Sub LoadTransactions()
-            _transactionList.Items.Clear()
+            _transactionsPanel.Controls.Clear()
             Dim selectedRange = TryCast(_rangeCombo.SelectedItem, RangeOption)
             Dim range = If(selectedRange Is Nothing, GetAllRange(), selectedRange)
             Dim transactions = _transactionRepository.GetTransactions(_account.Id, range.FromDate, range.ToDate)
             For Each entry In transactions
-                Dim item = New ListViewItem(entry.BookingDate.ToString("d", CultureInfo.GetCultureInfo("de-DE")))
-                item.SubItems.Add(entry.Counterparty)
-                item.SubItems.Add(entry.Purpose)
-                item.SubItems.Add(entry.Amount.ToString("C", CultureInfo.GetCultureInfo("de-DE")))
-                _transactionList.Items.Add(item)
+                Dim card = New TransactionCard With {
+                    .Width = _transactionsPanel.Width - 25,
+                    .TransactionDate = entry.BookingDate.ToString("d", CultureInfo.GetCultureInfo("de-DE")),
+                    .Counterparty = entry.Counterparty,
+                    .Purpose = entry.Purpose,
+                    .Amount = entry.Amount.ToString("C", CultureInfo.GetCultureInfo("de-DE"))
+                }
+                _transactionsPanel.Controls.Add(card)
             Next
         End Sub
 
@@ -116,10 +124,10 @@ Namespace BankAssets.Forms
             Dim series = _chart.Series("Saldo")
             series.Points.Clear()
             For Each entry In balances
-                Dim pointIndex = series.Points.AddY(entry.Value)
-                Dim point = series.Points(pointIndex)
-                point.AxisLabel = entry.Key.ToString("MMM yyyy", CultureInfo.GetCultureInfo("de-DE"))
+                Dim point = New DataPoint(entry.Key.ToOADate(), Convert.ToDouble(entry.Value))
+                series.Points.Add(point)
             Next
+            _chart.ChartAreas("History").RecalculateAxesScale()
         End Sub
 
         Private Sub OnApplyFilter(sender As Object, e As EventArgs)
@@ -145,6 +153,12 @@ Namespace BankAssets.Forms
 
             LoadTransactions()
             LoadChart()
+        End Sub
+
+        Private Sub OnFormKeyDown(sender As Object, e As KeyEventArgs)
+            If e.KeyCode = Keys.Escape Then
+                Close()
+            End If
         End Sub
 
         Private Sub LoadRanges()

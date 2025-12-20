@@ -18,6 +18,8 @@ Namespace BankAssets.Forms
             Width = 420
             Height = 280
             StartPosition = FormStartPosition.CenterParent
+            KeyPreview = True
+            AddHandler KeyDown, AddressOf OnFormKeyDown
 
             Theme.Apply(Me)
 
@@ -67,6 +69,13 @@ Namespace BankAssets.Forms
             If String.IsNullOrWhiteSpace(_amountBox.Text) OrElse String.IsNullOrWhiteSpace(_purposeBox.Text) Then
                 MessageBox.Show("Bitte Betrag und Verwendungszweck angeben.", "Fehlende Angaben", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 DialogResult = DialogResult.None
+            End If
+        End Sub
+
+        Private Sub OnFormKeyDown(sender As Object, e As KeyEventArgs)
+            If e.KeyCode = Keys.Escape Then
+                DialogResult = DialogResult.Cancel
+                Close()
             End If
         End Sub
     End Class

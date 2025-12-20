@@ -16,6 +16,8 @@ Namespace BankAssets.Forms
             Width = 560
             Height = 180
             StartPosition = FormStartPosition.CenterScreen
+            KeyPreview = True
+            AddHandler KeyDown, AddressOf OnFormKeyDown
 
             Theme.Apply(Me)
 
@@ -83,6 +85,13 @@ Namespace BankAssets.Forms
             End If
 
             _settingsService.SaveDatabasePath(_pathTextBox.Text)
+        End Sub
+
+        Private Sub OnFormKeyDown(sender As Object, e As KeyEventArgs)
+            If e.KeyCode = Keys.Escape Then
+                DialogResult = DialogResult.Cancel
+                Close()
+            End If
         End Sub
     End Class
 End Namespace

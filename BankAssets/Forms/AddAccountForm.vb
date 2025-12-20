@@ -19,6 +19,8 @@ Namespace BankAssets.Forms
             Width = 460
             Height = 360
             StartPosition = FormStartPosition.CenterParent
+            KeyPreview = True
+            AddHandler KeyDown, AddressOf OnFormKeyDown
 
             Theme.Apply(Me)
 
@@ -84,6 +86,13 @@ Namespace BankAssets.Forms
             If String.IsNullOrWhiteSpace(selection.Item1) OrElse String.IsNullOrWhiteSpace(selection.Item3) OrElse String.IsNullOrWhiteSpace(selection.Item4) Then
                 MessageBox.Show("Bitte Bankname, Kontoname und IBAN angeben.", "Fehlende Angaben", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 DialogResult = DialogResult.None
+            End If
+        End Sub
+
+        Private Sub OnFormKeyDown(sender As Object, e As KeyEventArgs)
+            If e.KeyCode = Keys.Escape Then
+                DialogResult = DialogResult.Cancel
+                Close()
             End If
         End Sub
     End Class
