@@ -121,40 +121,48 @@ Namespace BankAssets.Forms
         End Sub
 
         Private Sub OnAddOfflineAccount(sender As Object, e As EventArgs)
-            Dim bankName = Microsoft.VisualBasic.Interaction.InputBox("Bankname", "Neue Bank")
-            If String.IsNullOrWhiteSpace(bankName) Then
-                Return
-            End If
+            Using dialog As New AddAccountForm(GetBankTemplates())
+                If dialog.ShowDialog() <> DialogResult.OK Then
+                    Return
+                End If
 
-            Dim accountName = Microsoft.VisualBasic.Interaction.InputBox("Kontoname", "Neues Konto")
-            If String.IsNullOrWhiteSpace(accountName) Then
-                Return
-            End If
+                Dim selection = dialog.GetSelection()
+                Dim bankName = selection.Item1
+                Dim apiType = selection.Item2
+                Dim accountName = selection.Item3
+                Dim iban = selection.Item4
 
-            Dim iban = Microsoft.VisualBasic.Interaction.InputBox("IBAN", "Neues Konto")
-            If String.IsNullOrWhiteSpace(iban) Then
-                Return
-            End If
+                Dim bankId As Integer
+                Dim existingBank = _bankRepository.GetAllBanks().FirstOrDefault(Function(b) b.Name.Equals(bankName, StringComparison.OrdinalIgnoreCase))
+                If existingBank Is Nothing Then
+                    bankId = _bankRepository.AddBank(New Models.Bank With {
+                        .Name = bankName,
+                        .ApiType = apiType
+                    })
+                Else
+                    bankId = existingBank.Id
+                End If
 
-            Dim bankId As Integer
-            Dim existingBank = _bankRepository.GetAllBanks().FirstOrDefault(Function(b) b.Name.Equals(bankName, StringComparison.OrdinalIgnoreCase))
-            If existingBank Is Nothing Then
-                bankId = _bankRepository.AddBank(New Models.Bank With {
-                    .Name = bankName,
-                    .ApiType = "offline"
+                _accountRepository.AddAccount(New Models.Account With {
+                    .BankId = bankId,
+                    .Name = accountName,
+                    .Iban = iban,
+                    .CurrentBalance = 0
                 })
-            Else
-                bankId = existingBank.Id
-            End If
-
-            _accountRepository.AddAccount(New Models.Account With {
-                .BankId = bankId,
-                .Name = accountName,
-                .Iban = iban,
-                .CurrentBalance = 0
-            })
+            End Using
 
             LoadAccounts()
         End Sub
+
+        Private Function GetBankTemplates() As List(Of Models.BankTemplate)
+            Return New List(Of Models.BankTemplate) From {
+                New Models.BankTemplate With {.Name = "Deutsche Bank", .ApiType = "offline"},
+                New Models.BankTemplate With {.Name = "Commerzbank", .ApiType = "offline"},
+                New Models.BankTemplate With {.Name = "DKB", .ApiType = "offline"},
+                New Models.BankTemplate With {.Name = "N26", .ApiType = "offline"},
+                New Models.BankTemplate With {.Name = "Sparkasse", .ApiType = "offline"},
+                New Models.BankTemplate With {.Name = "Volksbank/Raiffeisenbank", .ApiType = "offline"}
+            }
+        End Function
     End Class
 End Namespace

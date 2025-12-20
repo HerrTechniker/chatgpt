@@ -1,11 +1,15 @@
+Imports System.Globalization
+Imports System.Linq
 Imports Microsoft.Data.Sqlite
 
 Namespace BankAssets.Repositories
     Public Class AccountRepository
         Private ReadOnly _database As Data.Database
+        Private ReadOnly _encryptionService As Services.EncryptionService
 
         Public Sub New(database As Data.Database)
             _database = database
+            _encryptionService = database.EncryptionService
         End Sub
 
         Public Function GetAccountsWithBank() As List(Of (Models.Account, Models.Bank))
@@ -17,25 +21,28 @@ Namespace BankAssets.Repositories
                 command.CommandText &= "SELECT a.id, a.bank_id, a.name, a.iban, a.current_balance, a.last_synced_at, "
                 command.CommandText &= "b.id, b.name, b.api_type "
                 command.CommandText &= "FROM accounts a "
-                command.CommandText &= "INNER JOIN banks b ON b.id = a.bank_id "
-                command.CommandText &= "ORDER BY b.name ASC, a.name ASC"
+                command.CommandText &= "INNER JOIN banks b ON b.id = a.bank_id"
 
                 Using reader = command.ExecuteReader()
                     While reader.Read()
+                        Dim decryptedAccountName = _encryptionService.Decrypt(reader.GetString(2))
+                        Dim decryptedIban = _encryptionService.Decrypt(reader.GetString(3))
+                        Dim decryptedBalance = Decimal.Parse(_encryptionService.Decrypt(reader.GetString(4)), CultureInfo.InvariantCulture)
                         Dim account = New Models.Account With {
                             .Id = reader.GetInt32(0),
                             .BankId = reader.GetInt32(1),
-                            .Name = reader.GetString(2),
-                            .Iban = reader.GetString(3),
-                            .CurrentBalance = Convert.ToDecimal(reader.GetDouble(4))
+                            .Name = decryptedAccountName,
+                            .Iban = decryptedIban,
+                            .CurrentBalance = decryptedBalance
                         }
                         If Not reader.IsDBNull(5) Then
                             account.LastSyncedAt = DateTime.Parse(reader.GetString(5))
                         End If
 
+                        Dim decryptedBankName = _encryptionService.Decrypt(reader.GetString(7))
                         Dim bank = New Models.Bank With {
                             .Id = reader.GetInt32(6),
-                            .Name = reader.GetString(7),
+                            .Name = decryptedBankName,
                             .ApiType = reader.GetString(8)
                         }
                         results.Add((account, bank))
@@ -43,7 +50,7 @@ Namespace BankAssets.Repositories
                 End Using
             End Using
 
-            Return results
+            Return results.OrderBy(Function(entry) entry.Item2.Name).ThenBy(Function(entry) entry.Item1.Name).ToList()
         End Function
 
         Public Function AddAccount(account As Models.Account) As Integer
@@ -53,9 +60,9 @@ Namespace BankAssets.Repositories
                 command.CommandText = "INSERT INTO accounts (bank_id, name, iban, current_balance, last_synced_at) "
                 command.CommandText &= "VALUES ($bankId, $name, $iban, $balance, $lastSynced); SELECT last_insert_rowid();"
                 command.Parameters.AddWithValue("$bankId", account.BankId)
-                command.Parameters.AddWithValue("$name", account.Name)
-                command.Parameters.AddWithValue("$iban", account.Iban)
-                command.Parameters.AddWithValue("$balance", account.CurrentBalance)
+                command.Parameters.AddWithValue("$name", _encryptionService.Encrypt(account.Name))
+                command.Parameters.AddWithValue("$iban", _encryptionService.Encrypt(account.Iban))
+                command.Parameters.AddWithValue("$balance", _encryptionService.Encrypt(account.CurrentBalance.ToString(CultureInfo.InvariantCulture)))
                 command.Parameters.AddWithValue("$lastSynced", If(account.LastSyncedAt.HasValue, account.LastSyncedAt.Value.ToString("O"), CType(DBNull.Value, Object)))
                 Return Convert.ToInt32(command.ExecuteScalar())
             End Using
@@ -66,7 +73,7 @@ Namespace BankAssets.Repositories
                 connection.Open()
                 Dim command = connection.CreateCommand()
                 command.CommandText = "UPDATE accounts SET current_balance = $balance WHERE id = $id"
-                command.Parameters.AddWithValue("$balance", balance)
+                command.Parameters.AddWithValue("$balance", _encryptionService.Encrypt(balance.ToString(CultureInfo.InvariantCulture)))
                 command.Parameters.AddWithValue("$id", accountId)
                 command.ExecuteNonQuery()
             End Using
