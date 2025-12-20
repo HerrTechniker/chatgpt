@@ -86,15 +86,12 @@ Namespace BankAssets.Forms
             For Each entry In accounts
                 Dim account = entry.Item1
                 Dim bank = entry.Item2
-                Dim group As ListViewGroup
-
-                If Not _listView.Groups.ContainsKey(bank.Name) Then
+                Dim group = _listView.Groups.Cast(Of ListViewGroup)().FirstOrDefault(Function(g) g.Name = bank.Name)
+                If group Is Nothing Then
                     group = New ListViewGroup(bank.Name, HorizontalAlignment.Left) With {
                         .Name = bank.Name
                     }
                     _listView.Groups.Add(group)
-                Else
-                    group = _listView.Groups(bank.Name)
                 End If
 
                 Dim item = New ListViewItem(account.Name, group)
