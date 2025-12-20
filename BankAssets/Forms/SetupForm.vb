@@ -18,6 +18,8 @@ Namespace BankAssets.Forms
             StartPosition = FormStartPosition.CenterScreen
             KeyPreview = True
             AddHandler KeyDown, AddressOf OnFormKeyDown
+            FormBorderStyle = FormBorderStyle.FixedSingle
+            MaximizeBox = False
 
             Theme.Apply(Me)
 

@@ -27,6 +27,8 @@ Namespace BankAssets.Forms
             Width = 1000
             Height = 700
             StartPosition = FormStartPosition.CenterScreen
+            FormBorderStyle = FormBorderStyle.FixedSingle
+            MaximizeBox = False
 
             Dim addAccountButton = New Button With {
                 .Text = "Offline-Konto hinzufügen",

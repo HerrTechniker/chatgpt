@@ -28,6 +28,8 @@ Namespace BankAssets.Forms
             StartPosition = FormStartPosition.CenterScreen
             KeyPreview = True
             AddHandler KeyDown, AddressOf OnFormKeyDown
+            FormBorderStyle = FormBorderStyle.FixedSingle
+            MaximizeBox = False
 
             Dim filterLabel = New Label With {
                 .Text = "Filter Zeitraum:",
