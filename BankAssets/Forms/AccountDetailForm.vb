@@ -42,18 +42,10 @@ Namespace BankAssets.Forms
                 .Width = 200,
                 .DropDownStyle = ComboBoxStyle.DropDownList
             }
-            Dim applyButton = New Button With {
-                .Text = "Anwenden",
-                .Left = 410,
-                .Top = 8,
-                .Width = 90,
-                .Height = 30
-            }
-            AddHandler applyButton.Click, AddressOf OnApplyFilter
-
+            AddHandler _rangeCombo.SelectedIndexChanged, AddressOf OnRangeChanged
             Dim addTransactionButton = New Button With {
                 .Text = "Transaktion hinzufügen",
-                .Left = 520,
+                .Left = 350,
                 .Top = 8,
                 .Width = 170,
                 .Height = 30
@@ -91,7 +83,6 @@ Namespace BankAssets.Forms
 
             Controls.Add(filterLabel)
             Controls.Add(_rangeCombo)
-            Controls.Add(applyButton)
             Controls.Add(addTransactionButton)
             Controls.Add(_transactionsPanel)
             Controls.Add(_chart)
@@ -131,10 +122,6 @@ Namespace BankAssets.Forms
                 series.Points.Add(point)
             Next
             _chart.ChartAreas("History").RecalculateAxesScale()
-        End Sub
-
-        Private Sub OnApplyFilter(sender As Object, e As EventArgs)
-            LoadTransactions()
         End Sub
 
         Private Sub OnAddTransaction(sender As Object, e As EventArgs)
@@ -183,7 +170,13 @@ Namespace BankAssets.Forms
             End If
 
             Dim selectedIndex = _rangeCombo.Items.Cast(Of RangeOption)().ToList().FindIndex(Function(optionItem) optionItem.Label = selectedLabel)
+            RemoveHandler _rangeCombo.SelectedIndexChanged, AddressOf OnRangeChanged
             _rangeCombo.SelectedIndex = If(selectedIndex >= 0, selectedIndex, 0)
+            AddHandler _rangeCombo.SelectedIndexChanged, AddressOf OnRangeChanged
+        End Sub
+
+        Private Sub OnRangeChanged(sender As Object, e As EventArgs)
+            LoadTransactions()
         End Sub
 
         Private Function GetAllRange() As RangeOption

@@ -16,8 +16,8 @@ Namespace BankAssets.Forms
             _templates = templates
 
             Text = "Konto hinzufügen"
-            Width = 460
-            Height = 360
+            Width = 540
+            Height = 390
             StartPosition = FormStartPosition.CenterParent
             KeyPreview = True
             AddHandler KeyDown, AddressOf OnFormKeyDown
@@ -25,28 +25,28 @@ Namespace BankAssets.Forms
             Theme.Apply(Me)
 
             Dim templateLabel = New Label With {.Text = "Bankvorlage", .Left = 20, .Top = 20, .AutoSize = True}
-            _bankCombo = New ComboBox With {.Left = 150, .Top = 16, .Width = 250, .DropDownStyle = ComboBoxStyle.DropDownList}
+            _bankCombo = New ComboBox With {.Left = 190, .Top = 16, .Width = 300, .DropDownStyle = ComboBoxStyle.DropDownList}
             _bankCombo.Items.AddRange(_templates.Cast(Of Object).ToArray())
             _bankCombo.Items.Add("Benutzerdefiniert")
             _bankCombo.SelectedIndex = 0
             AddHandler _bankCombo.SelectedIndexChanged, AddressOf OnTemplateChanged
 
             Dim bankNameLabel = New Label With {.Text = "Bankname", .Left = 20, .Top = 60, .AutoSize = True}
-            _bankNameBox = New TextBox With {.Left = 150, .Top = 56, .Width = 250, .Enabled = False}
+            _bankNameBox = New TextBox With {.Left = 190, .Top = 56, .Width = 300, .Enabled = False}
 
             Dim accountNameLabel = New Label With {.Text = "Kontoname", .Left = 20, .Top = 100, .AutoSize = True}
-            _accountNameBox = New TextBox With {.Left = 150, .Top = 96, .Width = 250}
+            _accountNameBox = New TextBox With {.Left = 190, .Top = 96, .Width = 300}
 
             Dim ibanLabel = New Label With {.Text = "IBAN", .Left = 20, .Top = 140, .AutoSize = True}
-            _ibanBox = New TextBox With {.Left = 150, .Top = 136, .Width = 250}
+            _ibanBox = New TextBox With {.Left = 190, .Top = 136, .Width = 300}
 
             Dim credentialsLabel = New Label With {.Text = "API-Zugang (optional)", .Left = 20, .Top = 180, .AutoSize = True}
-            _credentialsBox = New TextBox With {.Left = 150, .Top = 176, .Width = 250}
+            _credentialsBox = New TextBox With {.Left = 190, .Top = 176, .Width = 300}
 
-            Dim saveButton = New Button With {.Text = "Speichern", .Left = 230, .Top = 220, .Width = 90, .Height = 30, .DialogResult = DialogResult.OK}
+            Dim saveButton = New Button With {.Text = "Speichern", .Left = 260, .Top = 230, .Width = 90, .Height = 30, .DialogResult = DialogResult.OK}
             AddHandler saveButton.Click, AddressOf OnSave
 
-            Dim cancelButton = New Button With {.Text = "Abbrechen", .Left = 330, .Top = 220, .Width = 90, .Height = 30, .DialogResult = DialogResult.Cancel}
+            Dim cancelButton = New Button With {.Text = "Abbrechen", .Left = 360, .Top = 230, .Width = 90, .Height = 30, .DialogResult = DialogResult.Cancel}
 
             Controls.Add(templateLabel)
             Controls.Add(_bankCombo)
