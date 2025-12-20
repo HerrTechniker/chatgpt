@@ -28,8 +28,6 @@ Namespace BankAssets.Forms
             Height = 700
             StartPosition = FormStartPosition.CenterScreen
 
-            Theme.Apply(Me)
-
             Dim addAccountButton = New Button With {
                 .Text = "Offline-Konto hinzufügen",
                 .Top = 15,
@@ -64,7 +62,9 @@ Namespace BankAssets.Forms
                 .Width = 400,
                 .Height = 400
             }
-            _chart.ChartAreas.Add(New ChartArea("Assets"))
+            Dim assetsArea = New ChartArea("Assets")
+            assetsArea.BackColor = Theme.BackgroundColor
+            _chart.ChartAreas.Add(assetsArea)
             Dim legend = New Legend("BanksLegend") With {
                 .Docking = Docking.Bottom,
                 .BackColor = Theme.BackgroundColor,
@@ -80,6 +80,8 @@ Namespace BankAssets.Forms
             Controls.Add(syncButton)
             Controls.Add(_accountsPanel)
             Controls.Add(_chart)
+
+            Theme.Apply(Me)
 
             LoadAccounts()
         End Sub

@@ -1,4 +1,5 @@
 Imports System.Globalization
+Imports System.Linq
 Imports System.Windows.Forms
 Imports System.Windows.Forms.DataVisualization.Charting
 
@@ -13,7 +14,7 @@ Namespace BankAssets.Forms
         Private ReadOnly _transactionsPanel As FlowLayoutPanel
         Private ReadOnly _chart As Chart
         Private ReadOnly _rangeCombo As ComboBox
-        Private ReadOnly _yearRange As (Integer?, Integer?)
+        Private _yearRange As (Integer?, Integer?)
 
         Public Sub New(database As Data.Database, account As Models.Account)
             _database = database
@@ -27,8 +28,6 @@ Namespace BankAssets.Forms
             StartPosition = FormStartPosition.CenterScreen
             KeyPreview = True
             AddHandler KeyDown, AddressOf OnFormKeyDown
-
-            Theme.Apply(Me)
 
             Dim filterLabel = New Label With {
                 .Text = "Filter Zeitraum:",
@@ -97,6 +96,8 @@ Namespace BankAssets.Forms
             Controls.Add(_transactionsPanel)
             Controls.Add(_chart)
 
+            Theme.Apply(Me)
+
             _yearRange = _transactionRepository.GetTransactionYearRange(_account.Id)
             LoadRanges()
 
@@ -148,8 +149,9 @@ Namespace BankAssets.Forms
                 _accountRepository.UpdateBalance(_account.Id, _account.CurrentBalance)
             End Using
 
-            If Not _yearRange.Item1.HasValue OrElse Not _yearRange.Item2.HasValue Then
-                _yearRange = _transactionRepository.GetTransactionYearRange(_account.Id)
+            Dim updatedRange = _transactionRepository.GetTransactionYearRange(_account.Id)
+            If updatedRange.Item1 <> _yearRange.Item1 OrElse updatedRange.Item2 <> _yearRange.Item2 Then
+                _yearRange = updatedRange
                 LoadRanges()
             End If
 
@@ -164,6 +166,9 @@ Namespace BankAssets.Forms
         End Sub
 
         Private Sub LoadRanges()
+            Dim previousSelection = TryCast(_rangeCombo.SelectedItem, RangeOption)
+            Dim selectedLabel = If(previousSelection Is Nothing, "", previousSelection.Label)
+
             _rangeCombo.Items.Clear()
             _rangeCombo.Items.Add(GetAllRange())
             _rangeCombo.Items.Add(New RangeOption("Letzten 3 Monate", Date.Today.AddMonths(-3).Date, Date.Today))
@@ -177,7 +182,8 @@ Namespace BankAssets.Forms
                 Next
             End If
 
-            _rangeCombo.SelectedIndex = 0
+            Dim selectedIndex = _rangeCombo.Items.Cast(Of RangeOption)().ToList().FindIndex(Function(optionItem) optionItem.Label = selectedLabel)
+            _rangeCombo.SelectedIndex = If(selectedIndex >= 0, selectedIndex, 0)
         End Sub
 
         Private Function GetAllRange() As RangeOption
