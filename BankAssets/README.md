@@ -1,13 +1,18 @@
 # BankAssets – Anleitung
 
 ## Voraussetzungen
-- .NET 6 SDK für Windows (WinForms)
+- .NET 8 SDK für Windows (WinForms)
 - SQLite ist integriert (Microsoft.Data.Sqlite)
+- Diagramme benötigen das NuGet-Paket `System.Windows.Forms.DataVisualization`
 
 ## Start der App
 1. Projekt in Visual Studio öffnen und `BankAssets` als Startprojekt wählen.
 2. App starten.
 3. Beim ersten Start erscheint **„Datenbank einrichten“**. Wähle einen Ordner – die Datei `bank-assets.db` wird dort erstellt.
+
+## Benötigte NuGet-Pakete
+- `Microsoft.Data.Sqlite`
+- `System.Windows.Forms.DataVisualization`
 
 ## Konto hinzufügen (inkl. Bank-Vorlagen)
 1. In der Hauptansicht auf **„Offline-Konto hinzufügen“** klicken.

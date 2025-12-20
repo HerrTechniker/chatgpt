@@ -46,7 +46,7 @@ Namespace BankAssets.Services
             Return UnprotectKey(settings.EncryptionKey)
         End Function
 
-        Private Function LoadSettings() As AppSettings?
+        Private Function LoadSettings() As AppSettings
             If Not File.Exists(_settingsPath) Then
                 Return Nothing
             End If
