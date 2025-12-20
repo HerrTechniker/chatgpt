@@ -43,10 +43,10 @@ Namespace BankAssets.Forms
             Dim credentialsLabel = New Label With {.Text = "API-Zugang (optional)", .Left = 20, .Top = 180, .AutoSize = True}
             _credentialsBox = New TextBox With {.Left = 150, .Top = 176, .Width = 250}
 
-            Dim saveButton = New Button With {.Text = "Speichern", .Left = 230, .Top = 220, .DialogResult = DialogResult.OK}
+            Dim saveButton = New Button With {.Text = "Speichern", .Left = 230, .Top = 220, .Width = 90, .Height = 30, .DialogResult = DialogResult.OK}
             AddHandler saveButton.Click, AddressOf OnSave
 
-            Dim cancelButton = New Button With {.Text = "Abbrechen", .Left = 330, .Top = 220, .DialogResult = DialogResult.Cancel}
+            Dim cancelButton = New Button With {.Text = "Abbrechen", .Left = 330, .Top = 220, .Width = 90, .Height = 30, .DialogResult = DialogResult.Cancel}
 
             Controls.Add(templateLabel)
             Controls.Add(_bankCombo)

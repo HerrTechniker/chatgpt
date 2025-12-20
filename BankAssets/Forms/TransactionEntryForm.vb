@@ -35,10 +35,10 @@ Namespace BankAssets.Forms
             Dim dateLabel = New Label With {.Text = "Datum", .Left = 20, .Top = 140, .AutoSize = True}
             _datePicker = New DateTimePicker With {.Left = 150, .Top = 136, .Width = 200, .Format = DateTimePickerFormat.Short}
 
-            Dim saveButton = New Button With {.Text = "Speichern", .Left = 190, .Top = 180, .DialogResult = DialogResult.OK}
+            Dim saveButton = New Button With {.Text = "Speichern", .Left = 190, .Top = 180, .Width = 90, .Height = 30, .DialogResult = DialogResult.OK}
             AddHandler saveButton.Click, AddressOf OnSave
 
-            Dim cancelButton = New Button With {.Text = "Abbrechen", .Left = 280, .Top = 180, .DialogResult = DialogResult.Cancel}
+            Dim cancelButton = New Button With {.Text = "Abbrechen", .Left = 290, .Top = 180, .Width = 90, .Height = 30, .DialogResult = DialogResult.Cancel}
 
             Controls.Add(amountLabel)
             Controls.Add(_amountBox)

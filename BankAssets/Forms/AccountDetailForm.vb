@@ -47,7 +47,8 @@ Namespace BankAssets.Forms
                 .Text = "Anwenden",
                 .Left = 410,
                 .Top = 8,
-                .Width = 90
+                .Width = 90,
+                .Height = 30
             }
             AddHandler applyButton.Click, AddressOf OnApplyFilter
 
@@ -55,7 +56,8 @@ Namespace BankAssets.Forms
                 .Text = "Transaktion hinzufügen",
                 .Left = 520,
                 .Top = 8,
-                .Width = 170
+                .Width = 170,
+                .Height = 30
             }
             AddHandler addTransactionButton.Click, AddressOf OnAddTransaction
 

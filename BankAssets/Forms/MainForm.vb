@@ -34,7 +34,8 @@ Namespace BankAssets.Forms
                 .Text = "Offline-Konto hinzufügen",
                 .Top = 15,
                 .Left = 20,
-                .Width = 200
+                .Width = 200,
+                .Height = 30
             }
             AddHandler addAccountButton.Click, AddressOf OnAddOfflineAccount
 
@@ -42,7 +43,8 @@ Namespace BankAssets.Forms
                 .Text = "Online-Sync starten",
                 .Top = 15,
                 .Left = 240,
-                .Width = 200
+                .Width = 200,
+                .Height = 30
             }
             AddHandler syncButton.Click, AddressOf OnSyncAccounts
 

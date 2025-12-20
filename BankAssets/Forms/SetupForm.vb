@@ -40,7 +40,8 @@ Namespace BankAssets.Forms
                 .Text = "Durchsuchen...",
                 .Left = 430,
                 .Top = 52,
-                .Width = 100
+                .Width = 100,
+                .Height = 30
             }
             AddHandler browseButton.Click, AddressOf OnBrowseClicked
 
@@ -48,7 +49,8 @@ Namespace BankAssets.Forms
                 .Text = "Speichern",
                 .Left = 360,
                 .Top = 95,
-                .Width = 80,
+                .Width = 90,
+                .Height = 30,
                 .DialogResult = DialogResult.OK
             }
             AddHandler saveButton.Click, AddressOf OnSaveClicked
@@ -57,7 +59,8 @@ Namespace BankAssets.Forms
                 .Text = "Abbrechen",
                 .Left = 450,
                 .Top = 95,
-                .Width = 80,
+                .Width = 90,
+                .Height = 30,
                 .DialogResult = DialogResult.Cancel
             }
 
