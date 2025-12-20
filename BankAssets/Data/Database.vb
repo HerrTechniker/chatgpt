@@ -35,32 +35,40 @@ Namespace BankAssets.Data
             Using connection = CreateConnection()
                 connection.Open()
                 Dim command = connection.CreateCommand()
-                command.CommandText = """
-                CREATE TABLE IF NOT EXISTS banks (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    api_type TEXT NOT NULL,
-                    api_credentials TEXT NULL
-                );
-                CREATE TABLE IF NOT EXISTS accounts (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    bank_id INTEGER NOT NULL,
-                    name TEXT NOT NULL,
-                    iban TEXT NOT NULL,
-                    current_balance TEXT NOT NULL,
-                    last_synced_at TEXT NULL,
-                    FOREIGN KEY(bank_id) REFERENCES banks(id)
-                );
-                CREATE TABLE IF NOT EXISTS transactions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    account_id INTEGER NOT NULL,
-                    amount TEXT NOT NULL,
-                    purpose TEXT NOT NULL,
-                    booking_date TEXT NOT NULL,
-                    counterparty TEXT NOT NULL,
-                    FOREIGN KEY(account_id) REFERENCES accounts(id)
-                );
-                """
+                command.CommandText = String.Join(Environment.NewLine, New String() {
+                    "CREATE TABLE IF NOT EXISTS banks (",
+                    "    id INTEGER PRIMARY KEY AUTOINCREMENT,",
+                    "    name TEXT NOT NULL,",
+                    "    api_type TEXT NOT NULL,",
+                    "    api_credentials TEXT NULL",
+                    ");"
+                })
+                command.ExecuteNonQuery()
+
+                command.CommandText = String.Join(Environment.NewLine, New String() {
+                    "CREATE TABLE IF NOT EXISTS accounts (",
+                    "    id INTEGER PRIMARY KEY AUTOINCREMENT,",
+                    "    bank_id INTEGER NOT NULL,",
+                    "    name TEXT NOT NULL,",
+                    "    iban TEXT NOT NULL,",
+                    "    current_balance TEXT NOT NULL,",
+                    "    last_synced_at TEXT NULL,",
+                    "    FOREIGN KEY(bank_id) REFERENCES banks(id)",
+                    ");"
+                })
+                command.ExecuteNonQuery()
+
+                command.CommandText = String.Join(Environment.NewLine, New String() {
+                    "CREATE TABLE IF NOT EXISTS transactions (",
+                    "    id INTEGER PRIMARY KEY AUTOINCREMENT,",
+                    "    account_id INTEGER NOT NULL,",
+                    "    amount TEXT NOT NULL,",
+                    "    purpose TEXT NOT NULL,",
+                    "    booking_date TEXT NOT NULL,",
+                    "    counterparty TEXT NOT NULL,",
+                    "    FOREIGN KEY(account_id) REFERENCES accounts(id)",
+                    ");"
+                })
                 command.ExecuteNonQuery()
                 EnsureColumn(connection, "banks", "api_credentials", "TEXT NULL")
             End Using
