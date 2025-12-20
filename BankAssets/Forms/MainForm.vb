@@ -1,4 +1,5 @@
 Imports System.Globalization
+Imports System.Drawing
 Imports System.Linq
 Imports System.Windows.Forms
 Imports System.Windows.Forms.DataVisualization.Charting
@@ -12,7 +13,7 @@ Namespace BankAssets.Forms
         Private ReadOnly _accountRepository As Repositories.AccountRepository
         Private ReadOnly _bankRepository As Repositories.BankRepository
         Private ReadOnly _bankSyncService As Services.BankSyncService
-        Private ReadOnly _listView As ListView
+        Private ReadOnly _accountsPanel As FlowLayoutPanel
         Private ReadOnly _chart As Chart
 
         Public Sub New(database As Data.Database, settingsService As Services.SettingsService)
@@ -45,19 +46,15 @@ Namespace BankAssets.Forms
             }
             AddHandler syncButton.Click, AddressOf OnSyncAccounts
 
-            _listView = New ListView With {
-                .View = View.Details,
-                .FullRowSelect = True,
+            _accountsPanel = New FlowLayoutPanel With {
                 .Left = 20,
                 .Top = 55,
                 .Width = 520,
-                .Height = 580
+                .Height = 580,
+                .AutoScroll = True,
+                .FlowDirection = FlowDirection.TopDown,
+                .WrapContents = False
             }
-            _listView.GridLines = False
-            _listView.Columns.Add("Konto", 180)
-            _listView.Columns.Add("IBAN", 180)
-            _listView.Columns.Add("Saldo", 120)
-            AddHandler _listView.DoubleClick, AddressOf OnAccountDoubleClick
 
             _chart = New Chart With {
                 .Left = 560,
@@ -73,40 +70,47 @@ Namespace BankAssets.Forms
 
             Controls.Add(addAccountButton)
             Controls.Add(syncButton)
-            Controls.Add(_listView)
+            Controls.Add(_accountsPanel)
             Controls.Add(_chart)
 
             LoadAccounts()
         End Sub
 
         Private Sub LoadAccounts()
-            _listView.Items.Clear()
-            _listView.Groups.Clear()
+            _accountsPanel.Controls.Clear()
             Dim accounts = _accountRepository.GetAccountsWithBank()
 
             Dim totalsByBank As New Dictionary(Of String, Decimal)
 
-            For Each entry In accounts
-                Dim account = entry.Item1
-                Dim bank = entry.Item2
-                Dim group = _listView.Groups.Cast(Of ListViewGroup)().FirstOrDefault(Function(g) g.Name = bank.Name)
-                If group Is Nothing Then
-                    group = New ListViewGroup(bank.Name, HorizontalAlignment.Left) With {
-                        .Name = bank.Name
+            Dim bankGroups = accounts.GroupBy(Function(entry) entry.Item2.Name).OrderBy(Function(group) group.Key)
+            For Each bankGroup In bankGroups
+                Dim header = New Label With {
+                    .Text = bankGroup.Key,
+                    .AutoSize = False,
+                    .Width = _accountsPanel.Width - 25,
+                    .Height = 28,
+                    .Font = New Font("Segoe UI", 10, FontStyle.Bold)
+                }
+                _accountsPanel.Controls.Add(header)
+
+                For Each entry In bankGroup.OrderBy(Function(e) e.Item1.Name)
+                    Dim account = entry.Item1
+                    Dim bank = entry.Item2
+                    Dim button = New Button With {
+                        .Text = $"{account.Name}  •  {account.Iban}  •  {account.CurrentBalance.ToString("C", CultureInfo.GetCultureInfo("de-DE"))}",
+                        .Width = _accountsPanel.Width - 25,
+                        .Height = 40,
+                        .TextAlign = ContentAlignment.MiddleLeft,
+                        .Tag = account
                     }
-                    _listView.Groups.Add(group)
-                End If
+                    AddHandler button.Click, AddressOf OnAccountButtonClick
+                    _accountsPanel.Controls.Add(button)
 
-                Dim item = New ListViewItem(account.Name, group)
-                item.SubItems.Add(account.Iban)
-                item.SubItems.Add(account.CurrentBalance.ToString("C", CultureInfo.GetCultureInfo("de-DE")))
-                item.Tag = account
-                _listView.Items.Add(item)
-
-                If Not totalsByBank.ContainsKey(bank.Name) Then
-                    totalsByBank(bank.Name) = 0
-                End If
-                totalsByBank(bank.Name) += account.CurrentBalance
+                    If Not totalsByBank.ContainsKey(bank.Name) Then
+                        totalsByBank(bank.Name) = 0
+                    End If
+                    totalsByBank(bank.Name) += account.CurrentBalance
+                Next
             Next
 
             Dim series = _chart.Series("Banks")
@@ -119,12 +123,16 @@ Namespace BankAssets.Forms
             Next
         End Sub
 
-        Private Sub OnAccountDoubleClick(sender As Object, e As EventArgs)
-            If _listView.SelectedItems.Count = 0 Then
+        Private Sub OnAccountButtonClick(sender As Object, e As EventArgs)
+            Dim button = TryCast(sender, Button)
+            If button Is Nothing Then
                 Return
             End If
 
-            Dim account = CType(_listView.SelectedItems(0).Tag, Models.Account)
+            Dim account = TryCast(button.Tag, Models.Account)
+            If account Is Nothing Then
+                Return
+            End If
             Using detailForm As New AccountDetailForm(_database, account)
                 detailForm.ShowDialog()
             End Using
