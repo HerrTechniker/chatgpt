@@ -3,7 +3,6 @@
 ## Voraussetzungen
 - .NET 8 SDK für Windows (WinForms)
 - SQLite ist integriert (Microsoft.Data.Sqlite)
-- Diagramme benötigen das NuGet-Paket `System.Windows.Forms.DataVisualization`
 
 ## Start der App
 1. Projekt in Visual Studio öffnen und `BankAssets` als Startprojekt wählen.
@@ -12,7 +11,6 @@
 
 ## Benötigte NuGet-Pakete
 - `Microsoft.Data.Sqlite`
-- `System.Windows.Forms.DataVisualization`
 
 ## Konto hinzufügen (inkl. Bank-Vorlagen)
 1. In der Hauptansicht auf **„Offline-Konto hinzufügen“** klicken.

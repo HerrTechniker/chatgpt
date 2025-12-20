@@ -10,6 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.4" />
-    <PackageReference Include="System.Windows.Forms.DataVisualization" Version="8.0.0" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
   </ItemGroup>
 </Project>
