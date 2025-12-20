@@ -89,22 +89,24 @@ Namespace BankAssets.Forms
                     .AutoSize = False,
                     .Width = _accountsPanel.Width - 25,
                     .Height = 28,
-                    .Font = New Font("Segoe UI", 10, FontStyle.Bold)
+                    .Font = New Font("Segoe UI", 10, FontStyle.Bold),
+                    .ForeColor = Theme.TextColor,
+                    .BackColor = Theme.BackgroundColor
                 }
                 _accountsPanel.Controls.Add(header)
 
                 For Each entry In bankGroup.OrderBy(Function(e) e.Item1.Name)
                     Dim account = entry.Item1
                     Dim bank = entry.Item2
-                    Dim button = New Button With {
-                        .Text = $"{account.Name}  •  {account.Iban}  •  {account.CurrentBalance.ToString("C", CultureInfo.GetCultureInfo("de-DE"))}",
+                    Dim card = New AccountCard With {
                         .Width = _accountsPanel.Width - 25,
-                        .Height = 40,
-                        .TextAlign = ContentAlignment.MiddleLeft,
+                        .AccountName = account.Name,
+                        .AccountIban = account.Iban,
+                        .AccountBalance = account.CurrentBalance.ToString("C", CultureInfo.GetCultureInfo("de-DE")),
                         .Tag = account
                     }
-                    AddHandler button.Click, AddressOf OnAccountButtonClick
-                    _accountsPanel.Controls.Add(button)
+                    AddHandler card.Click, AddressOf OnAccountButtonClick
+                    _accountsPanel.Controls.Add(card)
 
                     If Not totalsByBank.ContainsKey(bank.Name) Then
                         totalsByBank(bank.Name) = 0
@@ -124,12 +126,12 @@ Namespace BankAssets.Forms
         End Sub
 
         Private Sub OnAccountButtonClick(sender As Object, e As EventArgs)
-            Dim button = TryCast(sender, Button)
-            If button Is Nothing Then
+            Dim card = TryCast(sender, AccountCard)
+            If card Is Nothing Then
                 Return
             End If
 
-            Dim account = TryCast(button.Tag, Models.Account)
+            Dim account = TryCast(card.Tag, Models.Account)
             If account Is Nothing Then
                 Return
             End If

@@ -4,11 +4,11 @@ Imports System.Windows.Forms.DataVisualization.Charting
 
 Namespace BankAssets.Forms
     Public Module Theme
-        Private ReadOnly BackgroundColor As Color = Color.FromArgb(245, 247, 250)
-        Private ReadOnly SurfaceColor As Color = Color.White
-        Private ReadOnly AccentColor As Color = Color.FromArgb(45, 125, 247)
-        Private ReadOnly TextColor As Color = Color.FromArgb(33, 37, 41)
-        Private ReadOnly MutedTextColor As Color = Color.FromArgb(108, 117, 125)
+        Public ReadOnly BackgroundColor As Color = Color.FromArgb(15, 24, 33)
+        Public ReadOnly SurfaceColor As Color = Color.FromArgb(24, 35, 48)
+        Public ReadOnly AccentColor As Color = Color.FromArgb(45, 125, 247)
+        Public ReadOnly TextColor As Color = Color.FromArgb(230, 236, 242)
+        Public ReadOnly MutedTextColor As Color = Color.FromArgb(160, 170, 181)
 
         Public Sub Apply(form As Form)
             form.BackColor = BackgroundColor
@@ -27,6 +27,8 @@ Namespace BankAssets.Forms
                         StyleTextBox(DirectCast(control, TextBox))
                     Case TypeOf control Is ListView
                         StyleListView(DirectCast(control, ListView))
+                    Case TypeOf control Is FlowLayoutPanel
+                        StyleFlowLayout(DirectCast(control, FlowLayoutPanel))
                     Case TypeOf control Is Label
                         control.ForeColor = TextColor
                     Case TypeOf control Is ComboBox
@@ -77,14 +79,18 @@ Namespace BankAssets.Forms
             listView.HeaderStyle = ColumnHeaderStyle.Nonclickable
         End Sub
 
+        Private Sub StyleFlowLayout(panel As FlowLayoutPanel)
+            panel.BackColor = BackgroundColor
+        End Sub
+
         Private Sub StyleChart(chart As Chart)
             chart.BackColor = BackgroundColor
             For Each area In chart.ChartAreas
                 area.BackColor = SurfaceColor
                 area.AxisX.LabelStyle.ForeColor = MutedTextColor
                 area.AxisY.LabelStyle.ForeColor = MutedTextColor
-                area.AxisX.MajorGrid.LineColor = Color.FromArgb(230, 234, 239)
-                area.AxisY.MajorGrid.LineColor = Color.FromArgb(230, 234, 239)
+                area.AxisX.MajorGrid.LineColor = Color.FromArgb(45, 55, 68)
+                area.AxisY.MajorGrid.LineColor = Color.FromArgb(45, 55, 68)
             Next
             chart.Palette = ChartColorPalette.BrightPastel
         End Sub
