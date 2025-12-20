@@ -6,7 +6,8 @@ Namespace BankAssets
     Friend Module Program
         <STAThread>
         Sub Main()
-            ApplicationConfiguration.Initialize()
+            Application.EnableVisualStyles()
+            Application.SetCompatibleTextRenderingDefault(False)
 
             Dim settingsService = New Services.SettingsService(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
             Dim dbPath = settingsService.LoadDatabasePath()

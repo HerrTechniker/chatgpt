@@ -118,7 +118,8 @@ Namespace BankAssets.Forms
             Dim series = _chart.Series("Saldo")
             series.Points.Clear()
             For Each entry In balances
-                Dim point = series.Points.AddY(entry.Value)
+                Dim pointIndex = series.Points.AddY(entry.Value)
+                Dim point = series.Points(pointIndex)
                 point.AxisLabel = entry.Key.ToString("MMM yyyy", CultureInfo.GetCultureInfo("de-DE"))
             Next
         End Sub
