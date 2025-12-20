@@ -109,7 +109,8 @@ Namespace BankAssets.Forms
             Dim series = _chart.Series("Banks")
             series.Points.Clear()
             For Each entry In totalsByBank
-                Dim point = series.Points.AddY(entry.Value)
+                Dim pointIndex = series.Points.AddY(entry.Value)
+                Dim point = series.Points(pointIndex)
                 point.LegendText = entry.Key
                 point.Label = entry.Value.ToString("C", CultureInfo.GetCultureInfo("de-DE"))
             Next
