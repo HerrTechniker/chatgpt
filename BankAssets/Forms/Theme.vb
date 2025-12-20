@@ -87,6 +87,8 @@ Namespace BankAssets.Forms
             chart.BackColor = BackgroundColor
             For Each area In chart.ChartAreas
                 area.BackColor = SurfaceColor
+                area.BorderColor = Color.Black
+                area.BorderWidth = 2
                 area.AxisX.LabelStyle.ForeColor = MutedTextColor
                 area.AxisY.LabelStyle.ForeColor = MutedTextColor
                 area.AxisX.MajorGrid.LineColor = Color.FromArgb(45, 55, 68)

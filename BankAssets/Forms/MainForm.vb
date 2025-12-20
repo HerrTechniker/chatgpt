@@ -63,6 +63,12 @@ Namespace BankAssets.Forms
                 .Height = 400
             }
             _chart.ChartAreas.Add(New ChartArea("Assets"))
+            Dim legend = New Legend("BanksLegend") With {
+                .Docking = Docking.Bottom,
+                .BackColor = Theme.BackgroundColor,
+                .ForeColor = Theme.TextColor
+            }
+            _chart.Legends.Add(legend)
             Dim series = New Series("Banks") With {
                 .ChartType = SeriesChartType.Pie
             }
@@ -117,6 +123,8 @@ Namespace BankAssets.Forms
 
             Dim series = _chart.Series("Banks")
             series.Points.Clear()
+            series.Legend = "BanksLegend"
+            series.IsValueShownAsLabel = False
             For Each entry In totalsByBank
                 Dim pointIndex = series.Points.AddY(entry.Value)
                 Dim point = series.Points(pointIndex)
