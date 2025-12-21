@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact – HPS Power Solutions</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="subpage-header">
+      <div class="top-bar">
+        <a class="logo" href="/en" aria-label="HPS Power Solutions home">
+          <img src="/assets/hps-logo.svg" alt="HPS Power Solutions logo" />
+          <span>HPS Power Solutions</span>
+        </a>
+        <nav class="main-nav" aria-label="Primary navigation">
+          <a href="/en/solutions">Solutions</a>
+          <a href="/en/services">Services</a>
+          <a href="/en/industries">Industries</a>
+          <a href="/en/downloads">Downloads</a>
+          <a href="/en/virtual-tour">360° Tour</a>
+          <a href="/en/about">Company</a>
+          <a href="/en/internships">Internships</a>
+          <a class="active" href="/en/contact">Contact</a>
+          <a href="/en/imprint">Imprint</a>
+          <a href="/en/privacy">Privacy</a>
+        </nav>
+        <div class="language-switcher" data-lang-switcher aria-label="Language selection">
+          <button type="button" data-lang="de">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div class="header-content">
+        <h1>Contact &amp; support</h1>
+        <p>Planning a new project or need technical assistance? We are here to help.</p>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="contact-grid">
+        <div class="contact-card">
+          <h2>Direct contact</h2>
+          <p>Phone: +49 1234 56789</p>
+          <p>Email: <a href="mailto:info@hps-power.local">info@hps-power.local</a></p>
+          <p>Address: Industriestrasse 12, 86150 Augsburg</p>
+          <h3>Service hours</h3>
+          <p>Monday – Friday, 08:00 to 18:00</p>
+        </div>
+        <form class="contact-form" aria-label="Contact form">
+          <h2>Send a message</h2>
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" required />
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required />
+
+          <label for="topic">Topic</label>
+          <select id="topic" name="topic">
+            <option>Project inquiry</option>
+            <option>Technical support</option>
+            <option>Sales</option>
+            <option>Other</option>
+          </select>
+
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+
+          <button class="btn btn-primary" type="submit">Send message</button>
+          <p class="form-hint">Demo only – submissions are not stored.</p>
+        </form>
+      </section>
+
+      <section class="map-section">
+        <h2>Location</h2>
+        <div class="map-placeholder" role="img" aria-label="Map showing the company location">
+          <span>Map Placeholder</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <h3>HPS Power Solutions</h3>
+          <p>Engineering for power supply, drive technology, and industrial digitalization.</p>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li>Phone: +49 1234 56789</li>
+            <li>Email: info@hps-power.local</li>
+            <li>Address: Industriestrasse 12, 86150 Augsburg</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quick links</h4>
+          <ul>
+            <li><a href="/en/downloads">Download area</a></li>
+            <li><a href="/en/virtual-tour">360° Tour</a></li>
+            <li><a href="/en/about">About us</a></li>
+            <li><a href="/en/internships">Internships</a></li>
+            <li><a href="/en/contact">Support</a></li>
+            <li><a href="/en/imprint">Imprint</a></li>
+            <li><a href="/en/privacy">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-meta">© <span id="year"></span> HPS Power Solutions. All rights reserved.</p>
+    </footer>
+    <script src="/js/site.js"></script>
+  </body>
+</html>

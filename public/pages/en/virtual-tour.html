@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>360° Virtual Tour – HPS Power Solutions</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photo-sphere-viewer@5/dist/photo-sphere-viewer.css" integrity="sha384-JS6dZrG8YBPPBSnnzcg0THb0o78Vmz2bphokVs4nfs89uXfL0YJwLHUnZWuBMHHz" crossorigin="anonymous" />
+  </head>
+  <body>
+    <header class="subpage-header">
+      <div class="top-bar">
+        <a class="logo" href="/en" aria-label="HPS Power Solutions home">
+          <img src="/assets/hps-logo.svg" alt="HPS Power Solutions logo" />
+          <span>HPS Power Solutions</span>
+        </a>
+        <nav class="main-nav" aria-label="Primary navigation">
+          <a href="/en/solutions">Solutions</a>
+          <a href="/en/services">Services</a>
+          <a href="/en/industries">Industries</a>
+          <a href="/en/downloads">Downloads</a>
+          <a class="active" href="/en/virtual-tour">360° Tour</a>
+          <a href="/en/about">Company</a>
+          <a href="/en/internships">Internships</a>
+          <a href="/en/contact">Contact</a>
+          <a href="/en/imprint">Imprint</a>
+          <a href="/en/privacy">Privacy</a>
+        </nav>
+        <div class="language-switcher" data-lang-switcher aria-label="Language selection">
+          <button type="button" data-lang="de">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div class="header-content">
+        <h1>360° tour captured with the Insta360 X4</h1>
+        <p>
+          Take an immersive look behind the scenes of our production, test bays, and service areas. Replace the placeholder
+          below with your own Insta360 X4 capture to keep the experience up to date.
+        </p>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="tour-intro" aria-label="Virtual tour overview">
+        <div class="tour-copy">
+          <h2>How the tour works</h2>
+          <p>
+            Use your Insta360 X4 to export an equirectangular 360° image (JPG or PNG) or embed a tour published via Insta360
+            Studio. The viewer below loads a placeholder by default; swap in your own assets to guide visitors through your
+            facilities.
+          </p>
+          <ul class="feature-list">
+            <li>Supports 360° photos (JPG/PNG) rendered from Insta360 Studio or the Insta360 mobile app.</li>
+            <li>Optional deep link to a hosted Insta360 tour or an external 360° video.</li>
+            <li>Step-by-step instructions below explain how to refresh the experience.</li>
+          </ul>
+        </div>
+        <div class="tour-viewer-card">
+          <div
+            class="tour-viewer"
+            data-tour-viewer
+            data-lang="en"
+            data-panorama="__placeholder__"
+            data-caption="HPS Power Solutions – Virtual tour"
+          ></div>
+          <p class="tour-viewer-hint" data-tour-status>
+            The placeholder panorama is shown. Follow the steps below to publish your Insta360 capture.
+          </p>
+        </div>
+      </section>
+
+      <section class="tour-instructions" aria-label="Update instructions">
+        <h2>Publish your own Insta360 X4 footage</h2>
+        <ol class="ordered-steps">
+          <li>
+            <strong>Export a 360° photo:</strong> Open your recording in Insta360 Studio and export an equirectangular JPG
+            (2:1 aspect ratio, e.g. 7680×3840&nbsp;px).
+          </li>
+          <li>
+            <strong>Store the file:</strong> Place the file inside <code>public/tour/</code> within this project and name it,
+            for example, <code>factory-tour.jpg</code>.
+          </li>
+          <li>
+            <strong>Update the reference:</strong> Adjust the <code>data-panorama</code> attribute in this section (or via your
+            deployment tooling) to point to the new file, e.g. <code>/tour/factory-tour.jpg</code>.
+          </li>
+          <li>
+            <strong>Optional: Embed a hosted tour.</strong> When using an Insta360-hosted tour, replace the viewer with an
+            iFrame link instead; consult the README’s “Virtual tour” section for details.
+          </li>
+        </ol>
+        <p>
+          Combine multiple perspectives by adding additional viewer containers or by defining hotspots directly inside the
+          viewer configuration. The current integration is powered by <em>Photo Sphere Viewer</em> and supports fullscreen mode
+          on desktop and gesture controls on mobile devices.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <h3>HPS Power Solutions</h3>
+          <p>Engineering for power supply, drive technology, and industrial digitalization.</p>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li>Phone: +49 1234 56789</li>
+            <li>Email: info@hps-power.local</li>
+            <li>Address: Industriestrasse 12, 86150 Augsburg</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quick links</h4>
+          <ul>
+            <li><a href="/en/downloads">Download area</a></li>
+            <li><a href="/en/virtual-tour">360° Tour</a></li>
+            <li><a href="/en/internships">Internships</a></li>
+            <li><a href="/en/about">About us</a></li>
+            <li><a href="/en/contact">Support</a></li>
+            <li><a href="/en/imprint">Imprint</a></li>
+            <li><a href="/en/privacy">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-meta">© <span id="year"></span> HPS Power Solutions. All rights reserved.</p>
+    </footer>
+    <script src="/js/site.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uevent@2/browser.min.js" integrity="sha384-PaFqhhk5Lhsb+rM63DWbea+LCvABUhtm46n8d9eI+WuTFpyvlYszdOrOBT0yn4D7" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/photo-sphere-viewer@5/dist/photo-sphere-viewer.js" integrity="sha384-o4JDVkv5k1LOBIu0p8wlAi5C1zYJ8iWFH/CwOnGSo7b8pqZmKLT0A7vclhg2CXOf" crossorigin="anonymous"></script>
+    <script src="/js/virtual-tour.js"></script>
+  </body>
+</html>

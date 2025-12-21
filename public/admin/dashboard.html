@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard – HPS Power Solutions</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="admin-shell">
+    <header class="admin-header">
+      <div>
+        <h1>Verwaltungsbereich</h1>
+        <p>Downloads, Software-Versionen und Benutzerkonten verwalten</p>
+      </div>
+      <div class="admin-actions">
+        <span class="status-badge" id="session-info">Verbunden</span>
+        <button class="btn btn-secondary" id="logout-btn" type="button">Abmelden</button>
+        <a class="btn btn-outline" href="/">Zur Website</a>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <section class="admin-card" id="download-management">
+        <h2>Downloads verwalten</h2>
+        <p>Neue Dateien hochladen oder bestehende Einträge aktualisieren.</p>
+        <form id="download-form" class="form-grid" enctype="multipart/form-data">
+          <input type="hidden" id="download-id" />
+          <div>
+            <label for="download-title">Titel *</label>
+            <input id="download-title" name="title" type="text" required />
+          </div>
+          <div>
+            <label for="download-version">Version</label>
+            <input id="download-version" name="version" type="text" />
+          </div>
+          <div>
+            <label for="download-date">Veröffentlichungsdatum</label>
+            <input id="download-date" name="releaseDate" type="date" />
+          </div>
+          <div>
+            <label for="download-description">Beschreibung</label>
+            <textarea id="download-description" name="description" rows="3"></textarea>
+          </div>
+          <div>
+            <label for="download-file">Datei (PDF, ZIP, EXE ...)</label>
+            <input id="download-file" name="file" type="file" />
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Speichern</button>
+            <button class="btn btn-outline" id="reset-download" type="button">Zurücksetzen</button>
+          </div>
+        </form>
+        <div class="notice hidden" id="download-notice" role="status"></div>
+        <table class="table-list" aria-label="Download-Liste">
+          <thead>
+            <tr>
+              <th>Titel</th>
+              <th>Version</th>
+              <th>Datum</th>
+              <th>Datei</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="download-table"></tbody>
+        </table>
+      </section>
+
+      <section class="admin-card" id="booking-management">
+        <h2>Praktikumsanfragen</h2>
+        <p>Eingehende Buchungen prüfen, Unterlagen herunterladen und den Status verwalten.</p>
+        <table class="table-list" aria-label="Praktikumsanfragen">
+          <thead>
+            <tr>
+              <th>Bewerber:in</th>
+              <th>Zeitraum</th>
+              <th>Kontakt</th>
+              <th>Status</th>
+              <th>Notiz</th>
+              <th>Unterlagen</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="booking-table">
+            <tr>
+              <td colspan="7">Noch keine Anfragen eingegangen.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="admin-card" id="user-management">
+        <h2>Benutzerverwaltung</h2>
+        <p>Nur für Admin-Konten sichtbar.</p>
+        <form id="user-form" class="form-grid">
+          <input type="hidden" id="user-id" />
+          <div>
+            <label for="user-name">Name *</label>
+            <input id="user-name" name="name" type="text" required />
+          </div>
+          <div>
+            <label for="user-email">E-Mail *</label>
+            <input id="user-email" name="email" type="email" required />
+          </div>
+          <div>
+            <label for="user-role">Rolle *</label>
+            <select id="user-role" name="role" required>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <label for="user-password">Passwort</label>
+            <input id="user-password" name="password" type="password" />
+            <small class="form-hint">Beim Bearbeiten nur ausfüllen, wenn das Passwort geändert werden soll.</small>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Benutzer speichern</button>
+            <button class="btn btn-outline" id="reset-user" type="button">Zurücksetzen</button>
+          </div>
+        </form>
+        <div class="notice hidden" id="user-notice" role="status"></div>
+        <table class="table-list" aria-label="Benutzerliste">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>E-Mail</th>
+              <th>Rolle</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="user-table"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/admin/admin.js"></script>
+  </body>
+</html>
