@@ -85,6 +85,9 @@ Namespace BankAssets.Forms
 
             Theme.Apply(Me)
 
+            _chart.BackColor = Theme.BackgroundColor
+            _chart.ChartAreas("Assets").BackColor = Theme.BackgroundColor
+
             LoadAccounts()
         End Sub
 

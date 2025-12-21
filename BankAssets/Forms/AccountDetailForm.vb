@@ -116,7 +116,10 @@ Namespace BankAssets.Forms
         End Sub
 
         Private Sub LoadChart()
-            Dim balances = _transactionRepository.GetMonthlyBalances(_account.Id)
+            Dim selectedRange = TryCast(_rangeCombo.SelectedItem, RangeOption)
+            Dim range = If(selectedRange Is Nothing, GetAllRange(), selectedRange)
+            Dim transactions = _transactionRepository.GetTransactions(_account.Id, range.FromDate, range.ToDate)
+            Dim balances = BuildMonthlyBalances(transactions)
             Dim series = _chart.Series("Saldo")
             series.Points.Clear()
             For Each entry In balances
@@ -179,7 +182,22 @@ Namespace BankAssets.Forms
 
         Private Sub OnRangeChanged(sender As Object, e As EventArgs)
             LoadTransactions()
+            LoadChart()
         End Sub
+
+        Private Function BuildMonthlyBalances(transactions As List(Of Models.AccountTransaction)) As Dictionary(Of DateTime, Decimal)
+            Dim balances As New Dictionary(Of DateTime, Decimal)
+            Dim grouped = transactions.GroupBy(Function(t) New DateTime(t.BookingDate.Year, t.BookingDate.Month, 1)) _
+                .OrderBy(Function(g) g.Key)
+
+            Dim runningTotal As Decimal = 0
+            For Each group In grouped
+                runningTotal += group.Sum(Function(t) t.Amount)
+                balances(group.Key) = runningTotal
+            Next
+
+            Return balances
+        End Function
 
         Private Function GetAllRange() As RangeOption
             Return New RangeOption("Alle Transaktionen", Nothing, Nothing)
