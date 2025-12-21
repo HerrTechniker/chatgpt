@@ -108,5 +108,12 @@ Namespace BankAssets.Forms
         Private Sub HandleCardClick(sender As Object, e As EventArgs)
             OnClick(e)
         End Sub
+
+        Protected Overrides Sub OnContextMenuStripChanged(e As EventArgs)
+            MyBase.OnContextMenuStripChanged(e)
+            For Each control As Control In Controls
+                control.ContextMenuStrip = ContextMenuStrip
+            Next
+        End Sub
     End Class
 End Namespace
