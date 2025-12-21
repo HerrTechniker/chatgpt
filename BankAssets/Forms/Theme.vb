@@ -37,6 +37,8 @@ Namespace BankAssets.Forms
                         StyleDateTimePicker(DirectCast(control, DateTimePicker))
                     Case TypeOf control Is Chart
                         StyleChart(DirectCast(control, Chart))
+                    Case TypeOf control Is MenuStrip
+                        StyleMenuStrip(DirectCast(control, MenuStrip))
                 End Select
 
                 If control.HasChildren Then
@@ -95,6 +97,12 @@ Namespace BankAssets.Forms
                 area.AxisY.MajorGrid.LineColor = Color.FromArgb(45, 55, 68)
             Next
             chart.Palette = ChartColorPalette.BrightPastel
+        End Sub
+
+        Private Sub StyleMenuStrip(menu As MenuStrip)
+            menu.BackColor = BackgroundColor
+            menu.ForeColor = TextColor
+            menu.RenderMode = ToolStripRenderMode.System
         End Sub
     End Module
 End Namespace

@@ -6,13 +6,15 @@ Namespace BankAssets.Forms
         Inherits Form
 
         Private ReadOnly _account As Models.Account
+        Private ReadOnly _existingTransaction As Models.AccountTransaction
         Private ReadOnly _amountBox As TextBox
         Private ReadOnly _purposeBox As TextBox
         Private ReadOnly _counterpartyBox As TextBox
         Private ReadOnly _datePicker As DateTimePicker
 
-        Public Sub New(account As Models.Account)
+        Public Sub New(account As Models.Account, existingTransaction As Models.AccountTransaction)
             _account = account
+            _existingTransaction = existingTransaction
 
             Text = $"Transaktion - {_account.Name}"
             Width = 420
@@ -52,19 +54,30 @@ Namespace BankAssets.Forms
             Controls.Add(_datePicker)
             Controls.Add(saveButton)
             Controls.Add(cancelButton)
+
+            If existingTransaction IsNot Nothing Then
+                _amountBox.Text = existingTransaction.Amount.ToString("N2", CultureInfo.GetCultureInfo("de-DE"))
+                _purposeBox.Text = existingTransaction.Purpose
+                _counterpartyBox.Text = existingTransaction.Counterparty
+                _datePicker.Value = existingTransaction.BookingDate
+            End If
+        End Sub
+
+        Public Sub New(account As Models.Account)
+            Me.New(account, Nothing)
         End Sub
 
         Public Function GetTransaction() As Models.AccountTransaction
             Dim amountValue As Decimal
             Decimal.TryParse(_amountBox.Text, NumberStyles.Number, CultureInfo.GetCultureInfo("de-DE"), amountValue)
 
-            Return New Models.AccountTransaction With {
-                .AccountId = _account.Id,
-                .Amount = amountValue,
-                .Purpose = _purposeBox.Text,
-                .Counterparty = _counterpartyBox.Text,
-                .BookingDate = _datePicker.Value.Date
-            }
+            Dim transaction = If(_existingTransaction, New Models.AccountTransaction())
+            transaction.AccountId = _account.Id
+            transaction.Amount = amountValue
+            transaction.Purpose = _purposeBox.Text
+            transaction.Counterparty = _counterpartyBox.Text
+            transaction.BookingDate = _datePicker.Value.Date
+            Return transaction
         End Function
 
         Private Sub OnSave(sender As Object, e As EventArgs)

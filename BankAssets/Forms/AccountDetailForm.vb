@@ -15,6 +15,7 @@ Namespace BankAssets.Forms
         Private ReadOnly _chart As Chart
         Private ReadOnly _rangeCombo As ComboBox
         Private _yearRange As (Integer?, Integer?)
+        Private ReadOnly _menuStrip As MenuStrip
 
         Public Sub New(database As Data.Database, account As Models.Account)
             _database = database
@@ -31,34 +32,34 @@ Namespace BankAssets.Forms
             FormBorderStyle = FormBorderStyle.FixedSingle
             MaximizeBox = False
 
+            _menuStrip = New MenuStrip()
+            Dim transactionsMenu = New ToolStripMenuItem("Transaktionen")
+            Dim addTransactionItem = New ToolStripMenuItem("Transaktion hinzufügen")
+            AddHandler addTransactionItem.Click, AddressOf OnAddTransaction
+            transactionsMenu.DropDownItems.Add(addTransactionItem)
+            _menuStrip.Items.Add(transactionsMenu)
+            MainMenuStrip = _menuStrip
+
             Dim filterLabel = New Label With {
                 .Text = "Filter Zeitraum:",
                 .Left = 20,
-                .Top = 15,
+                .Top = 45,
                 .AutoSize = True
             }
 
             _rangeCombo = New ComboBox With {
                 .Left = 130,
-                .Top = 10,
+                .Top = 40,
                 .Width = 200,
                 .DropDownStyle = ComboBoxStyle.DropDownList
             }
             AddHandler _rangeCombo.SelectedIndexChanged, AddressOf OnRangeChanged
-            Dim addTransactionButton = New Button With {
-                .Text = "Transaktion hinzufügen",
-                .Left = 350,
-                .Top = 8,
-                .Width = 200,
-                .Height = 30
-            }
-            AddHandler addTransactionButton.Click, AddressOf OnAddTransaction
 
             _transactionsPanel = New FlowLayoutPanel With {
                 .Left = 20,
-                .Top = 45,
+                .Top = 80,
                 .Width = 600,
-                .Height = 580,
+                .Height = 545,
                 .AutoScroll = True,
                 .FlowDirection = FlowDirection.TopDown,
                 .WrapContents = False
@@ -66,7 +67,7 @@ Namespace BankAssets.Forms
 
             _chart = New Chart With {
                 .Left = 640,
-                .Top = 45,
+                .Top = 80,
                 .Width = 320,
                 .Height = 300
             }
@@ -83,9 +84,9 @@ Namespace BankAssets.Forms
             }
             _chart.Series.Add(series)
 
+            Controls.Add(_menuStrip)
             Controls.Add(filterLabel)
             Controls.Add(_rangeCombo)
-            Controls.Add(addTransactionButton)
             Controls.Add(_transactionsPanel)
             Controls.Add(_chart)
 
@@ -109,8 +110,10 @@ Namespace BankAssets.Forms
                     .TransactionDate = entry.BookingDate.ToString("d", CultureInfo.GetCultureInfo("de-DE")),
                     .Counterparty = entry.Counterparty,
                     .Purpose = entry.Purpose,
-                    .Amount = entry.Amount.ToString("C", CultureInfo.GetCultureInfo("de-DE"))
+                    .Amount = entry.Amount.ToString("C", CultureInfo.GetCultureInfo("de-DE")),
+                    .Tag = entry
                 }
+                card.ContextMenuStrip = BuildTransactionMenu(entry)
                 _transactionsPanel.Controls.Add(card)
             Next
         End Sub
@@ -183,6 +186,58 @@ Namespace BankAssets.Forms
         Private Sub OnRangeChanged(sender As Object, e As EventArgs)
             LoadTransactions()
             LoadChart()
+        End Sub
+
+        Private Function BuildTransactionMenu(transaction As Models.AccountTransaction) As ContextMenuStrip
+            Dim menu = New ContextMenuStrip()
+            Dim editItem = New ToolStripMenuItem("Transaktion bearbeiten")
+            AddHandler editItem.Click, Sub() EditTransaction(transaction)
+            Dim deleteItem = New ToolStripMenuItem("Transaktion löschen")
+            AddHandler deleteItem.Click, Sub() DeleteTransaction(transaction)
+            menu.Items.Add(editItem)
+            menu.Items.Add(deleteItem)
+            Return menu
+        End Function
+
+        Private Sub EditTransaction(transaction As Models.AccountTransaction)
+            Using dialog As New TransactionEntryForm(_account, transaction)
+                If dialog.ShowDialog() <> DialogResult.OK Then
+                    Return
+                End If
+
+                Dim updated = dialog.GetTransaction()
+                Dim delta = updated.Amount - transaction.Amount
+                _transactionRepository.UpdateTransaction(updated)
+                _account.CurrentBalance += delta
+                _accountRepository.UpdateBalance(_account.Id, _account.CurrentBalance)
+            End Using
+
+            RefreshYearRangeIfChanged()
+            LoadTransactions()
+            LoadChart()
+        End Sub
+
+        Private Sub DeleteTransaction(transaction As Models.AccountTransaction)
+            Dim confirm = MessageBox.Show("Transaktion wirklich löschen?", "Transaktion löschen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+            If confirm <> DialogResult.Yes Then
+                Return
+            End If
+
+            _transactionRepository.DeleteTransaction(transaction.Id)
+            _account.CurrentBalance -= transaction.Amount
+            _accountRepository.UpdateBalance(_account.Id, _account.CurrentBalance)
+
+            RefreshYearRangeIfChanged()
+            LoadTransactions()
+            LoadChart()
+        End Sub
+
+        Private Sub RefreshYearRangeIfChanged()
+            Dim updatedRange = _transactionRepository.GetTransactionYearRange(_account.Id)
+            If updatedRange.Item1 <> _yearRange.Item1 OrElse updatedRange.Item2 <> _yearRange.Item2 Then
+                _yearRange = updatedRange
+                LoadRanges()
+            End If
         End Sub
 
         Private Function BuildMonthlyBalances(transactions As List(Of Models.AccountTransaction)) As Dictionary(Of DateTime, Decimal)

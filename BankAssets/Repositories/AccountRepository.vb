@@ -78,5 +78,63 @@ Namespace BankAssets.Repositories
                 command.ExecuteNonQuery()
             End Using
         End Sub
+
+        Public Sub UpdateAccount(accountId As Integer, name As String, iban As String)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "UPDATE accounts SET name = $name, iban = $iban WHERE id = $id"
+                command.Parameters.AddWithValue("$name", _encryptionService.Encrypt(name))
+                command.Parameters.AddWithValue("$iban", _encryptionService.Encrypt(iban))
+                command.Parameters.AddWithValue("$id", accountId)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
+
+        Public Sub DeleteAccount(accountId As Integer)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "DELETE FROM accounts WHERE id = $id"
+                command.Parameters.AddWithValue("$id", accountId)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
+
+        Public Function CountAccountsForBank(bankId As Integer) As Integer
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "SELECT COUNT(*) FROM accounts WHERE bank_id = $bankId"
+                command.Parameters.AddWithValue("$bankId", bankId)
+                Return Convert.ToInt32(command.ExecuteScalar())
+            End Using
+        End Function
+
+        Public Function GetAccountsForBank(bankId As Integer) As List(Of Models.Account)
+            Dim results As New List(Of Models.Account)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "SELECT id, bank_id, name, iban, current_balance, last_synced_at FROM accounts WHERE bank_id = $bankId"
+                command.Parameters.AddWithValue("$bankId", bankId)
+                Using reader = command.ExecuteReader()
+                    While reader.Read()
+                        Dim account = New Models.Account With {
+                            .Id = reader.GetInt32(0),
+                            .BankId = reader.GetInt32(1),
+                            .Name = _encryptionService.Decrypt(reader.GetString(2)),
+                            .Iban = _encryptionService.Decrypt(reader.GetString(3)),
+                            .CurrentBalance = Decimal.Parse(_encryptionService.Decrypt(reader.GetString(4)), CultureInfo.InvariantCulture)
+                        }
+                        If Not reader.IsDBNull(5) Then
+                            account.LastSyncedAt = DateTime.Parse(reader.GetString(5))
+                        End If
+                        results.Add(account)
+                    End While
+                End Using
+            End Using
+            Return results
+        End Function
     End Class
 End Namespace

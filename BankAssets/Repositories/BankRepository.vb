@@ -60,5 +60,26 @@ Namespace BankAssets.Repositories
                 command.ExecuteNonQuery()
             End Using
         End Sub
+
+        Public Sub UpdateBank(bankId As Integer, name As String)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "UPDATE banks SET name = $name WHERE id = $id"
+                command.Parameters.AddWithValue("$name", _encryptionService.Encrypt(name))
+                command.Parameters.AddWithValue("$id", bankId)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
+
+        Public Sub DeleteBank(bankId As Integer)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "DELETE FROM banks WHERE id = $id"
+                command.Parameters.AddWithValue("$id", bankId)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
     End Class
 End Namespace

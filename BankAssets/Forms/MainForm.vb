@@ -1,5 +1,6 @@
 Imports System.Globalization
 Imports System.Drawing
+Imports System.IO
 Imports System.Linq
 Imports System.Windows.Forms
 Imports System.Windows.Forms.DataVisualization.Charting
@@ -15,6 +16,7 @@ Namespace BankAssets.Forms
         Private ReadOnly _bankSyncService As Services.BankSyncService
         Private ReadOnly _accountsPanel As FlowLayoutPanel
         Private ReadOnly _chart As Chart
+        Private ReadOnly _menuStrip As MenuStrip
 
         Public Sub New(database As Data.Database, settingsService As Services.SettingsService)
             _database = database
@@ -30,29 +32,32 @@ Namespace BankAssets.Forms
             FormBorderStyle = FormBorderStyle.FixedSingle
             MaximizeBox = False
 
-            Dim addAccountButton = New Button With {
-                .Text = "Offline-Konto hinzufügen",
-                .Top = 15,
-                .Left = 20,
-                .Width = 200,
-                .Height = 30
-            }
-            AddHandler addAccountButton.Click, AddressOf OnAddOfflineAccount
+            _menuStrip = New MenuStrip()
+            Dim accountMenu = New ToolStripMenuItem("Konto")
+            Dim addAccountItem = New ToolStripMenuItem("Offline-Konto hinzufügen")
+            AddHandler addAccountItem.Click, AddressOf OnAddOfflineAccount
+            Dim syncItem = New ToolStripMenuItem("Online-Sync starten")
+            AddHandler syncItem.Click, AddressOf OnSyncAccounts
+            accountMenu.DropDownItems.Add(addAccountItem)
+            accountMenu.DropDownItems.Add(syncItem)
 
-            Dim syncButton = New Button With {
-                .Text = "Online-Sync starten",
-                .Top = 15,
-                .Left = 240,
-                .Width = 200,
-                .Height = 30
-            }
-            AddHandler syncButton.Click, AddressOf OnSyncAccounts
+            Dim settingsMenu = New ToolStripMenuItem("Einstellungen")
+            Dim changePathItem = New ToolStripMenuItem("Datenbankpfad ändern...")
+            AddHandler changePathItem.Click, AddressOf OnChangeDatabasePath
+            Dim resetItem = New ToolStripMenuItem("Alle Daten löschen")
+            AddHandler resetItem.Click, AddressOf OnResetData
+            settingsMenu.DropDownItems.Add(changePathItem)
+            settingsMenu.DropDownItems.Add(resetItem)
+
+            _menuStrip.Items.Add(accountMenu)
+            _menuStrip.Items.Add(settingsMenu)
+            MainMenuStrip = _menuStrip
 
             _accountsPanel = New FlowLayoutPanel With {
                 .Left = 20,
-                .Top = 55,
+                .Top = 75,
                 .Width = 520,
-                .Height = 580,
+                .Height = 560,
                 .AutoScroll = True,
                 .FlowDirection = FlowDirection.TopDown,
                 .WrapContents = False
@@ -60,7 +65,7 @@ Namespace BankAssets.Forms
 
             _chart = New Chart With {
                 .Left = 560,
-                .Top = 55,
+                .Top = 75,
                 .Width = 400,
                 .Height = 400
             }
@@ -78,8 +83,7 @@ Namespace BankAssets.Forms
             }
             _chart.Series.Add(series)
 
-            Controls.Add(addAccountButton)
-            Controls.Add(syncButton)
+            Controls.Add(_menuStrip)
             Controls.Add(_accountsPanel)
             Controls.Add(_chart)
 
@@ -121,6 +125,7 @@ Namespace BankAssets.Forms
                         .Tag = account
                     }
                     AddHandler card.Click, AddressOf OnAccountButtonClick
+                    card.ContextMenuStrip = BuildAccountMenu(account, bank)
                     _accountsPanel.Controls.Add(card)
 
                     If Not totalsByBank.ContainsKey(bank.Name) Then
@@ -156,6 +161,82 @@ Namespace BankAssets.Forms
                 detailForm.ShowDialog()
             End Using
 
+            LoadAccounts()
+        End Sub
+
+        Private Function BuildAccountMenu(account As Models.Account, bank As Models.Bank) As ContextMenuStrip
+            Dim menu = New ContextMenuStrip()
+            Dim editAccount = New ToolStripMenuItem("Konto bearbeiten")
+            AddHandler editAccount.Click, Sub() EditAccount(account)
+            Dim deleteAccount = New ToolStripMenuItem("Konto löschen")
+            AddHandler deleteAccount.Click, Sub() DeleteAccount(account, bank)
+            Dim editBank = New ToolStripMenuItem("Bankverbindung bearbeiten")
+            AddHandler editBank.Click, Sub() EditBank(bank)
+            Dim deleteBank = New ToolStripMenuItem("Bankverbindung löschen")
+            AddHandler deleteBank.Click, Sub() DeleteBankConnection(bank)
+            menu.Items.Add(editAccount)
+            menu.Items.Add(deleteAccount)
+            menu.Items.Add(New ToolStripSeparator())
+            menu.Items.Add(editBank)
+            menu.Items.Add(deleteBank)
+            Return menu
+        End Function
+
+        Private Sub EditAccount(account As Models.Account)
+            Dim newName = Microsoft.VisualBasic.Interaction.InputBox("Kontoname", "Konto bearbeiten", account.Name)
+            If String.IsNullOrWhiteSpace(newName) Then
+                Return
+            End If
+            Dim newIban = Microsoft.VisualBasic.Interaction.InputBox("IBAN", "Konto bearbeiten", account.Iban)
+            If String.IsNullOrWhiteSpace(newIban) Then
+                Return
+            End If
+
+            _accountRepository.UpdateAccount(account.Id, newName, newIban)
+            LoadAccounts()
+        End Sub
+
+        Private Sub DeleteAccount(account As Models.Account, bank As Models.Bank)
+            Dim confirm = MessageBox.Show("Konto wirklich löschen?", "Konto löschen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+            If confirm <> DialogResult.Yes Then
+                Return
+            End If
+
+            Dim transactionRepo = New Repositories.TransactionRepository(_database)
+            transactionRepo.DeleteByAccount(account.Id)
+            _accountRepository.DeleteAccount(account.Id)
+
+            If _accountRepository.CountAccountsForBank(bank.Id) = 0 Then
+                _bankRepository.DeleteBank(bank.Id)
+            End If
+
+            LoadAccounts()
+        End Sub
+
+        Private Sub EditBank(bank As Models.Bank)
+            Dim newName = Microsoft.VisualBasic.Interaction.InputBox("Bankname", "Bankverbindung bearbeiten", bank.Name)
+            If String.IsNullOrWhiteSpace(newName) Then
+                Return
+            End If
+            Dim newCredentials = Microsoft.VisualBasic.Interaction.InputBox("API-Zugang (optional)", "Bankverbindung bearbeiten", bank.ApiCredentials)
+            _bankRepository.UpdateBank(bank.Id, newName)
+            _bankRepository.UpdateCredentials(bank.Id, newCredentials)
+            LoadAccounts()
+        End Sub
+
+        Private Sub DeleteBankConnection(bank As Models.Bank)
+            Dim confirm = MessageBox.Show("Bankverbindung und alle zugehörigen Konten löschen?", "Bankverbindung löschen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+            If confirm <> DialogResult.Yes Then
+                Return
+            End If
+
+            Dim transactionRepo = New Repositories.TransactionRepository(_database)
+            Dim accounts = _accountRepository.GetAccountsForBank(bank.Id)
+            For Each account In accounts
+                transactionRepo.DeleteByAccount(account.Id)
+                _accountRepository.DeleteAccount(account.Id)
+            Next
+            _bankRepository.DeleteBank(bank.Id)
             LoadAccounts()
         End Sub
 
@@ -225,6 +306,49 @@ Namespace BankAssets.Forms
             Next
 
             LoadAccounts()
+        End Sub
+
+        Private Sub OnChangeDatabasePath(sender As Object, e As EventArgs)
+            Using dialog = New FolderBrowserDialog()
+                dialog.Description = "Ordner für die Datenbank auswählen"
+                If dialog.ShowDialog() <> DialogResult.OK Then
+                    Return
+                End If
+
+                Dim newPath = IO.Path.Combine(dialog.SelectedPath, "bank-assets.db")
+                Dim currentPath = _settingsService.LoadDatabasePath()
+                Dim copyChoice = MessageBox.Show("Sollen die vorhandenen Daten übertragen werden?", "Datenbank verschieben", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+                If copyChoice = DialogResult.Cancel Then
+                    Return
+                End If
+
+                _settingsService.SaveDatabasePath(newPath)
+                If copyChoice = DialogResult.Yes AndAlso IO.File.Exists(currentPath) Then
+                    IO.Directory.CreateDirectory(IO.Path.GetDirectoryName(newPath))
+                    IO.File.Copy(currentPath, newPath, True)
+                ElseIf copyChoice = DialogResult.No AndAlso IO.File.Exists(newPath) Then
+                    IO.File.Delete(newPath)
+                End If
+
+                MessageBox.Show("Bitte die App neu starten, damit der neue Datenbankpfad übernommen wird.", "Neustart erforderlich", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Application.Restart()
+            End Using
+        End Sub
+
+        Private Sub OnResetData(sender As Object, e As EventArgs)
+            Dim confirm = MessageBox.Show("Alle Daten wirklich löschen?", "Hard Reset", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+            If confirm <> DialogResult.Yes Then
+                Return
+            End If
+
+            Dim dbPath = _settingsService.LoadDatabasePath()
+            If IO.File.Exists(dbPath) Then
+                IO.File.Delete(dbPath)
+            End If
+            _settingsService.SaveDatabasePath("")
+
+            MessageBox.Show("Alle Daten wurden gelöscht. Die App wird neu gestartet.", "Zurückgesetzt", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Application.Restart()
         End Sub
 
         Private Function GetBankTemplates() As List(Of Models.BankTemplate)

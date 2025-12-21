@@ -63,6 +63,40 @@ Namespace BankAssets.Repositories
             End Using
         End Sub
 
+        Public Sub UpdateTransaction(transaction As Models.AccountTransaction)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "UPDATE transactions SET amount = $amount, purpose = $purpose, booking_date = $bookingDate, counterparty = $counterparty WHERE id = $id"
+                command.Parameters.AddWithValue("$amount", _encryptionService.Encrypt(transaction.Amount.ToString(CultureInfo.InvariantCulture)))
+                command.Parameters.AddWithValue("$purpose", _encryptionService.Encrypt(transaction.Purpose))
+                command.Parameters.AddWithValue("$bookingDate", _encryptionService.Encrypt(transaction.BookingDate.ToString("O")))
+                command.Parameters.AddWithValue("$counterparty", _encryptionService.Encrypt(transaction.Counterparty))
+                command.Parameters.AddWithValue("$id", transaction.Id)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
+
+        Public Sub DeleteTransaction(transactionId As Integer)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "DELETE FROM transactions WHERE id = $id"
+                command.Parameters.AddWithValue("$id", transactionId)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
+
+        Public Sub DeleteByAccount(accountId As Integer)
+            Using connection = _database.CreateConnection()
+                connection.Open()
+                Dim command = connection.CreateCommand()
+                command.CommandText = "DELETE FROM transactions WHERE account_id = $accountId"
+                command.Parameters.AddWithValue("$accountId", accountId)
+                command.ExecuteNonQuery()
+            End Using
+        End Sub
+
         Public Function GetMonthlyBalances(accountId As Integer) As Dictionary(Of DateTime, Decimal)
             Dim balances As New Dictionary(Of DateTime, Decimal)
             Dim transactions = GetTransactions(accountId, Nothing, Nothing)
