@@ -49,7 +49,7 @@ Namespace BankAssets.Forms
                 .Text = "Transaktion hinzufügen",
                 .Left = 350,
                 .Top = 8,
-                .Width = 170,
+                .Width = 200,
                 .Height = 30
             }
             AddHandler addTransactionButton.Click, AddressOf OnAddTransaction
