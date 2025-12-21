@@ -166,19 +166,19 @@ Namespace BankAssets.Forms
 
         Private Function BuildAccountMenu(account As Models.Account, bank As Models.Bank) As ContextMenuStrip
             Dim menu = New ContextMenuStrip()
-            Dim editAccount = New ToolStripMenuItem("Konto bearbeiten")
-            AddHandler editAccount.Click, Sub(sender, e) EditAccount(account)
-            Dim deleteAccount = New ToolStripMenuItem("Konto löschen")
-            AddHandler deleteAccount.Click, Sub(sender, e) DeleteAccount(account, bank)
-            Dim editBank = New ToolStripMenuItem("Bankverbindung bearbeiten")
-            AddHandler editBank.Click, Sub(sender, e) EditBank(bank)
-            Dim deleteBank = New ToolStripMenuItem("Bankverbindung löschen")
-            AddHandler deleteBank.Click, Sub(sender, e) DeleteBankConnection(bank)
-            menu.Items.Add(editAccount)
-            menu.Items.Add(deleteAccount)
+            Dim editAccountToolStripMenuItem = New ToolStripMenuItem("Konto bearbeiten")
+            AddHandler editAccountToolStripMenuItem.Click, Sub(sender, e) EditAccount(account)
+            Dim deleteAccountToolStripMenuItem = New ToolStripMenuItem("Konto löschen")
+            AddHandler deleteAccountToolStripMenuItem.Click, Sub(sender, e) DeleteAccount(account, bank)
+            Dim editBankToolStripMenuItem = New ToolStripMenuItem("Bankverbindung bearbeiten")
+            AddHandler editBankToolStripMenuItem.Click, Sub(sender, e) EditBank(bank)
+            Dim deleteBankToolStripMenuItem = New ToolStripMenuItem("Bankverbindung löschen")
+            AddHandler deleteBankToolStripMenuItem.Click, Sub(sender, e) DeleteBankConnection(bank)
+            menu.Items.Add(editAccountToolStripMenuItem)
+            menu.Items.Add(deleteAccountToolStripMenuItem)
             menu.Items.Add(New ToolStripSeparator())
-            menu.Items.Add(editBank)
-            menu.Items.Add(deleteBank)
+            menu.Items.Add(editBankToolStripMenuItem)
+            menu.Items.Add(deleteBankToolStripMenuItem)
             Return menu
         End Function
 
