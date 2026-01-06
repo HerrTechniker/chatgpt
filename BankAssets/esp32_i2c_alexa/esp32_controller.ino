@@ -12,6 +12,12 @@ constexpr char PREFS_NAMESPACE[] = "rgbctrl";
 constexpr char PREF_WIFI_SSID[] = "wifi_ssid";
 constexpr char PREF_WIFI_PASS[] = "wifi_pass";
 constexpr char PREF_PROFILES[] = "profiles";
+constexpr char PREF_DEVICE_NAME[] = "device_name";
+constexpr char PREF_AP_ENABLED[] = "ap_enabled";
+constexpr char PREF_AP_SSID[] = "ap_ssid";
+constexpr char PREF_AP_PASS[] = "ap_pass";
+constexpr char PREF_ROAM_RSSI[] = "roam_rssi";
+constexpr char PREF_ROAM_INTERVAL[] = "roam_int";
 
 // ===== I2C =====
 constexpr uint8_t I2C_SDA = 21;
@@ -43,6 +49,15 @@ struct NodeState {
   bool on;
 };
 
+struct DeviceSettings {
+  String name;
+  bool apEnabled;
+  String apSsid;
+  String apPass;
+  int roamRssi;
+  int roamInterval;
+};
+
 enum class EffectMode : uint8_t {
   Solid = 0,
   Flicker = 1,
@@ -55,6 +70,7 @@ EffectMode currentEffect = EffectMode::Solid;
 bool apMode = false;
 unsigned long lastEffectTick = 0;
 uint16_t rainbowHue = 0;
+DeviceSettings deviceSettings;
 
 static void sendRgb(uint8_t address, uint8_t r, uint8_t g, uint8_t b) {
   Wire.beginTransmission(address);
@@ -207,6 +223,7 @@ static void setEffectByName(const String &name) {
 static void handleState() {
   String json = "{";
   json += "\"effect\":\"" + effectName() + "\",";
+  json += "\"deviceName\":\"" + deviceSettings.name + "\",";
   json += "\"nodes\":[";
   for (size_t i = 0; i < NODE_COUNT; ++i) {
     json += "{";
@@ -220,6 +237,87 @@ static void handleState() {
     }
   }
   json += "]}";
+  server.send(200, "application/json", json);
+}
+
+static void handleDeviceName() {
+  if (server.hasArg("name")) {
+    deviceSettings.name = server.arg("name");
+    prefs.putString(PREF_DEVICE_NAME, deviceSettings.name);
+  }
+  server.send(200, "application/json", "{\"name\":\"" + deviceSettings.name + "\"}");
+}
+
+static void handleDeviceReboot() {
+  server.send(200, "text/plain", "rebooting");
+  delay(250);
+  ESP.restart();
+}
+
+static void handleFactoryReset() {
+  prefs.clear();
+  server.send(200, "text/plain", "reset");
+  delay(250);
+  ESP.restart();
+}
+
+static void handleApSettings() {
+  if (server.hasArg("enabled")) {
+    deviceSettings.apEnabled = server.arg("enabled") == "1" || server.arg("enabled") == "true";
+    prefs.putBool(PREF_AP_ENABLED, deviceSettings.apEnabled);
+  }
+  if (server.hasArg("ssid")) {
+    deviceSettings.apSsid = server.arg("ssid");
+    prefs.putString(PREF_AP_SSID, deviceSettings.apSsid);
+  }
+  if (server.hasArg("pass")) {
+    deviceSettings.apPass = server.arg("pass");
+    prefs.putString(PREF_AP_PASS, deviceSettings.apPass);
+  }
+  if (deviceSettings.apEnabled) {
+    WiFi.mode(WIFI_AP_STA);
+    startAccessPoint();
+  } else {
+    WiFi.softAPdisconnect(true);
+  }
+  String json = "{";
+  json += "\"enabled\":" + String(deviceSettings.apEnabled ? "true" : "false") + ",";
+  json += "\"ssid\":\"" + deviceSettings.apSsid + "\"";
+  json += "}";
+  server.send(200, "application/json", json);
+}
+
+static void handleWiFiSettings() {
+  if (server.hasArg("ssid")) {
+    prefs.putString(PREF_WIFI_SSID, server.arg("ssid"));
+  }
+  if (server.hasArg("pass")) {
+    prefs.putString(PREF_WIFI_PASS, server.arg("pass"));
+  }
+  server.send(200, "text/plain", "saved");
+}
+
+static void handleRoamingSettings() {
+  if (server.hasArg("rssi")) {
+    deviceSettings.roamRssi = server.arg("rssi").toInt();
+    prefs.putInt(PREF_ROAM_RSSI, deviceSettings.roamRssi);
+  }
+  if (server.hasArg("interval")) {
+    deviceSettings.roamInterval = server.arg("interval").toInt();
+    prefs.putInt(PREF_ROAM_INTERVAL, deviceSettings.roamInterval);
+  }
+  server.send(200, "application/json", "{\"rssi\":" + String(deviceSettings.roamRssi) + ",\"interval\":" + String(deviceSettings.roamInterval) + "}");
+}
+
+static void handleWiFiStatus() {
+  String json = "{";
+  json += "\"ssid\":\"" + WiFi.SSID() + "\",";
+  json += "\"bssid\":\"" + WiFi.BSSIDstr() + "\",";
+  json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
+  json += "\"mac\":\"" + WiFi.macAddress() + "\",";
+  json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
+  json += "\"status\":\"" + String(WiFi.status() == WL_CONNECTED ? "connected" : "disconnected") + "\"";
+  json += "}";
   server.send(200, "application/json", json);
 }
 
@@ -343,11 +441,11 @@ static void handleProfilesList() {
 
 static void handleSetupPage() {
   String html = "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-                "<title>ESP32 Setup</title></head><body>"
+                "<title>ESP32 Setup</title></head><body style='font-family:Arial;background:#101820;color:#f2f4f8;padding:24px'>"
                 "<h1>WLAN Setup</h1>"
                 "<form method='POST' action='/setup'>"
-                "SSID:<br><input name='ssid'><br>"
-                "Passwort:<br><input name='pass' type='password'><br><br>"
+                "<label>SSID<br><input name='ssid' style='width:260px'></label><br><br>"
+                "<label>Passwort<br><input name='pass' type='password' style='width:260px'></label><br><br>"
                 "<button type='submit'>Speichern</button></form></body></html>";
   server.send(200, "text/html", html);
 }
@@ -367,29 +465,96 @@ static void handleSetupPost() {
 static void handleControlPage() {
   String html = "<!doctype html><html><head><meta charset='utf-8'>"
                 "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-                "<title>ESP32 RGB</title></head><body>"
-                "<h1>RGB Controller</h1>"
-                "<label>Node: <select id='node'></select></label><br><br>"
-                "<input type='color' id='color' value='#ff0000'>"
-                "<button onclick='applyColor()'>Setzen</button>"
-                "<button onclick='setOff()'>Aus</button><br><br>"
-                "<label>Effekt: <select id='effect'>"
+                "<title>ESP32 RGB</title>"
+                "<style>"
+                "body{font-family:Arial;background:#0f1720;color:#e2e8f0;margin:0;padding:24px}"
+                ".section{background:#1b232b;border-radius:12px;padding:16px;margin-bottom:16px}"
+                ".row{display:flex;align-items:center;gap:12px;margin:8px 0}"
+                ".label{width:160px;color:#8aa1b2}"
+                "input,select,button{background:#101820;color:#e2e8f0;border:1px solid #2c3640;border-radius:6px;padding:8px}"
+                "button{cursor:pointer}"
+                ".btn{background:#1687c5;border:none;padding:8px 14px;border-radius:6px;color:white}"
+                ".btn-secondary{background:#2a3a45}"
+                ".grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}"
+                ".status{font-size:12px;color:#79c0ff}"
+                "</style></head><body>"
+                "<h2>Device settings</h2>"
+                "<div class='section'>"
+                "<div class='row'><div class='label'>Device name</div><input id='deviceName' placeholder='RGB Controller'></div>"
+                "<div class='row'><div class='label'>Reboot device</div><button class='btn' onclick='rebootDevice()'>Reboot</button></div>"
+                "<div class='row'><div class='label'>Factory reset</div><button class='btn' onclick='factoryReset()'>Reset</button></div>"
+                "<div class='row'><div class='label'>Location and time</div><span class='status'>coming soon</span></div>"
+                "<div class='row'><div class='label'>Authentication</div><span class='status'>coming soon</span></div>"
+                "</div>"
+                "<h2>Network settings</h2>"
+                "<div class='section'>"
+                "<div class='row'><div class='label'>Access Point</div>"
+                "<input type='checkbox' id='apEnabled' onchange='saveAp()'>"
+                "<span class='status'>Enable Access Point</span></div>"
+                "<div class='row'><div class='label'>AP SSID</div><input id='apSsid' placeholder='ESP32-RGB-Setup'></div>"
+                "<div class='row'><div class='label'>AP Password</div><input id='apPass' type='password'></div>"
+                "<div class='row'><button class='btn' onclick='saveAp()'>Save settings</button></div>"
+                "</div>"
+                "<div class='section'>"
+                "<h3>Wi-Fi status</h3>"
+                "<div class='row'><div class='label'>Network</div><span id='wifiSsid'></span></div>"
+                "<div class='row'><div class='label'>BSSID</div><span id='wifiBssid'></span></div>"
+                "<div class='row'><div class='label'>IPv4 address</div><span id='wifiIp'></span></div>"
+                "<div class='row'><div class='label'>MAC address</div><span id='wifiMac'></span></div>"
+                "<div class='row'><div class='label'>Status</div><span id='wifiStatus'></span></div>"
+                "</div>"
+                "<div class='grid'>"
+                "<div class='section'>"
+                "<h3>Wi-Fi settings</h3>"
+                "<div class='row'><div class='label'>Network</div><input id='wifiSsidInput'></div>"
+                "<div class='row'><div class='label'>Password</div><input id='wifiPassInput' type='password'></div>"
+                "<div class='row'><button class='btn' onclick='saveWifi()'>Save settings</button></div>"
+                "</div>"
+                "<div class='section'>"
+                "<h3>Wi-Fi roaming</h3>"
+                "<div class='row'><div class='label'>RSSI threshold</div><input id='roamRssi' type='number'></div>"
+                "<div class='row'><div class='label'>Interval (s)</div><input id='roamInterval' type='number'></div>"
+                "<div class='row'><button class='btn' onclick='saveRoaming()'>Save settings</button></div>"
+                "</div>"
+                "</div>"
+                "<h2>Lighting</h2>"
+                "<div class='section'>"
+                "<div class='row'><div class='label'>Node</div><select id='node'></select></div>"
+                "<div class='row'><div class='label'>Color</div><input type='color' id='color' value='#ff0000'>"
+                "<button class='btn' onclick='applyColor()'>Set</button><button class='btn-secondary' onclick='setOff()'>Off</button></div>"
+                "<div class='row'><div class='label'>Effect</div><select id='effect'>"
                 "<option value='solid'>Solid</option>"
                 "<option value='flicker'>Flicker</option>"
                 "<option value='rainbow'>Rainbow</option>"
                 "<option value='pulse'>Pulse</option>"
-                "</select></label>"
-                "<button onclick='applyEffect()'>Effekt setzen</button><br><br>"
-                "<label>Profilname: <input id='profile'></label>"
-                "<button onclick='saveProfile()'>Speichern</button>"
-                "<button onclick='loadProfile()'>Laden</button>"
+                "</select><button class='btn' onclick='applyEffect()'>Apply</button></div>"
+                "<div class='row'><div class='label'>Profile</div><input id='profile'>"
+                "<button class='btn' onclick='saveProfile()'>Save</button>"
+                "<button class='btn-secondary' onclick='loadProfile()'>Load</button></div>"
+                "</div>"
                 "<script>"
                 "const nodeCount=" + String(NODE_COUNT) + ";"
                 "const nodeSel=document.getElementById('node');"
                 "for(let i=0;i<nodeCount;i++){let o=document.createElement('option');o.value=i;o.text='Node '+(i+1);nodeSel.appendChild(o);} "
-                "function hex(n){return n.toString(16).padStart(2,'0');}"
                 "function fetchState(){fetch('/api/state').then(r=>r.json()).then(s=>{"
-                "document.getElementById('effect').value=s.effect;});}"
+                "document.getElementById('effect').value=s.effect;"
+                "document.getElementById('deviceName').value=s.deviceName||'';"
+                "});}"
+                "function fetchStatus(){fetch('/api/status').then(r=>r.json()).then(s=>{"
+                "document.getElementById('wifiSsid').innerText=s.ssid;"
+                "document.getElementById('wifiBssid').innerText=s.bssid;"
+                "document.getElementById('wifiIp').innerText=s.ip;"
+                "document.getElementById('wifiMac').innerText=s.mac;"
+                "document.getElementById('wifiStatus').innerText=s.status+\" (RSSI \"+s.rssi+\" dBm)\";"
+                "});}"
+                "function fetchAp(){fetch('/api/ap').then(r=>r.json()).then(s=>{"
+                "document.getElementById('apEnabled').checked=s.enabled;"
+                "document.getElementById('apSsid').value=s.ssid||'';"
+                "});}"
+                "function fetchRoaming(){fetch('/api/roaming').then(r=>r.json()).then(s=>{"
+                "document.getElementById('roamRssi').value=s.rssi;"
+                "document.getElementById('roamInterval').value=s.interval;"
+                "});}"
                 "function applyColor(){"
                 "const idx=nodeSel.value;const c=document.getElementById('color').value;"
                 "const r=parseInt(c.substr(1,2),16);const g=parseInt(c.substr(3,2),16);const b=parseInt(c.substr(5,2),16);"
@@ -398,7 +563,18 @@ static void handleControlPage() {
                 "function applyEffect(){const e=document.getElementById('effect').value;fetch(`/api/effect?effect=${e}`,{method:'POST'}).then(fetchState);}"
                 "function saveProfile(){const n=document.getElementById('profile').value;fetch(`/api/profile/save?name=${encodeURIComponent(n)}`,{method:'POST'});} "
                 "function loadProfile(){const n=document.getElementById('profile').value;fetch(`/api/profile/load?name=${encodeURIComponent(n)}`,{method:'POST'}).then(fetchState);} "
-                "setInterval(fetchState,3000);fetchState();"
+                "function saveAp(){const en=document.getElementById('apEnabled').checked;const ssid=document.getElementById('apSsid').value;const pass=document.getElementById('apPass').value;"
+                "fetch(`/api/ap?enabled=${en?1:0}&ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}`,{method:'POST'});}"
+                "function saveWifi(){const ssid=document.getElementById('wifiSsidInput').value;const pass=document.getElementById('wifiPassInput').value;"
+                "fetch(`/api/wifi?ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}`,{method:'POST'});}"
+                "function saveRoaming(){const rssi=document.getElementById('roamRssi').value;const interval=document.getElementById('roamInterval').value;"
+                "fetch(`/api/roaming?rssi=${encodeURIComponent(rssi)}&interval=${encodeURIComponent(interval)}`,{method:'POST'});}"
+                "function rebootDevice(){fetch('/api/device/reboot',{method:'POST'});}"
+                "function factoryReset(){fetch('/api/device/reset',{method:'POST'});}"
+                "function saveDeviceName(){const name=document.getElementById('deviceName').value;"
+                "fetch(`/api/device/name?name=${encodeURIComponent(name)}`,{method:'POST'});}"
+                "document.getElementById('deviceName').addEventListener('change',saveDeviceName);"
+                "setInterval(()=>{fetchState();fetchStatus();},3000);fetchState();fetchStatus();fetchAp();fetchRoaming();"
                 "</script></body></html>";
   server.send(200, "text/html", html);
 }
@@ -412,6 +588,16 @@ static void setupWebRoutes() {
   server.on("/api/profile/save", HTTP_POST, handleProfileSave);
   server.on("/api/profile/load", HTTP_POST, handleProfileLoad);
   server.on("/api/profiles", HTTP_GET, handleProfilesList);
+  server.on("/api/device/name", HTTP_POST, handleDeviceName);
+  server.on("/api/device/name", HTTP_GET, handleDeviceName);
+  server.on("/api/device/reboot", HTTP_POST, handleDeviceReboot);
+  server.on("/api/device/reset", HTTP_POST, handleFactoryReset);
+  server.on("/api/ap", HTTP_POST, handleApSettings);
+  server.on("/api/ap", HTTP_GET, handleApSettings);
+  server.on("/api/wifi", HTTP_POST, handleWiFiSettings);
+  server.on("/api/roaming", HTTP_POST, handleRoamingSettings);
+  server.on("/api/roaming", HTTP_GET, handleRoamingSettings);
+  server.on("/api/status", HTTP_GET, handleWiFiStatus);
   server.on("/", HTTP_GET, handleControlPage);
 }
 
@@ -428,6 +614,15 @@ static bool connectWiFi() {
     delay(300);
   }
   return WiFi.status() == WL_CONNECTED;
+}
+
+static void startAccessPoint() {
+  if (!deviceSettings.apEnabled) {
+    return;
+  }
+  WiFi.softAP(deviceSettings.apSsid.c_str(), deviceSettings.apPass.c_str());
+  Serial.print("AP aktiv: ");
+  Serial.println(deviceSettings.apSsid);
 }
 
 static void onFauxmoEvent(unsigned char deviceId, const char *deviceName, bool state, unsigned char value) {
@@ -466,15 +661,24 @@ void setup() {
     nodes[i] = {255, 0, 0, true};
   }
 
+  deviceSettings.name = prefs.getString(PREF_DEVICE_NAME, "ESP32 RGB Controller");
+  deviceSettings.apEnabled = prefs.getBool(PREF_AP_ENABLED, true);
+  deviceSettings.apSsid = prefs.getString(PREF_AP_SSID, SETUP_SSID);
+  deviceSettings.apPass = prefs.getString(PREF_AP_PASS, SETUP_PASS);
+  deviceSettings.roamRssi = prefs.getInt(PREF_ROAM_RSSI, -80);
+  deviceSettings.roamInterval = prefs.getInt(PREF_ROAM_INTERVAL, 60);
+
   if (!connectWiFi()) {
     apMode = true;
     WiFi.mode(WIFI_AP);
-    WiFi.softAP(SETUP_SSID, SETUP_PASS);
-    Serial.print("AP aktiv: ");
-    Serial.println(SETUP_SSID);
+    startAccessPoint();
   } else {
     Serial.print("Verbunden, IP: ");
     Serial.println(WiFi.localIP());
+    if (deviceSettings.apEnabled) {
+      WiFi.mode(WIFI_AP_STA);
+      startAccessPoint();
+    }
   }
 
   setupWebRoutes();
