@@ -297,6 +297,21 @@ static void handleWiFiSettings() {
   server.send(200, "text/plain", "saved");
 }
 
+static void handleWiFiScan() {
+  int count = WiFi.scanNetworks();
+  String json = "{\"networks\":[";
+  for (int i = 0; i < count; ++i) {
+    String ssid = WiFi.SSID(i);
+    int rssi = WiFi.RSSI(i);
+    json += "{\"ssid\":\"" + ssid + "\",\"rssi\":" + String(rssi) + "}";
+    if (i + 1 < count) {
+      json += ",";
+    }
+  }
+  json += "]}";
+  server.send(200, "application/json", json);
+}
+
 static void handleRoamingSettings() {
   if (server.hasArg("rssi")) {
     deviceSettings.roamRssi = server.arg("rssi").toInt();
@@ -467,22 +482,34 @@ static void handleControlPage() {
                 "<meta name='viewport' content='width=device-width, initial-scale=1'>"
                 "<title>ESP32 RGB</title>"
                 "<style>"
-                "body{font-family:Arial;background:#0f1720;color:#e2e8f0;margin:0;padding:24px}"
+                "body{font-family:Arial;background:#0f1720;color:#e2e8f0;margin:0;padding:20px}"
                 ".section{background:#1b232b;border-radius:12px;padding:16px;margin-bottom:16px}"
-                ".row{display:flex;align-items:center;gap:12px;margin:8px 0}"
-                ".label{width:160px;color:#8aa1b2}"
+                ".row{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}"
+                ".label{width:180px;color:#8aa1b2}"
+                ".row input,.row select{flex:1 1 220px;min-width:180px}"
+                ".buttons{display:flex;gap:8px;flex-wrap:wrap}"
                 "input,select,button{background:#101820;color:#e2e8f0;border:1px solid #2c3640;border-radius:6px;padding:8px}"
                 "button{cursor:pointer}"
                 ".btn{background:#1687c5;border:none;padding:8px 14px;border-radius:6px;color:white}"
                 ".btn-secondary{background:#2a3a45}"
                 ".grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}"
                 ".status{font-size:12px;color:#79c0ff}"
+                "@media (max-width: 860px){"
+                ".grid{grid-template-columns:1fr}"
+                ".label{width:100%}"
+                "body{padding:14px}"
+                "}"
+                "@media (max-width: 520px){"
+                "h2{font-size:20px}"
+                ".section{padding:12px}"
+                ".row{gap:8px}"
+                "}"
                 "</style></head><body>"
                 "<h2>Device settings</h2>"
                 "<div class='section'>"
                 "<div class='row'><div class='label'>Device name</div><input id='deviceName' placeholder='RGB Controller'></div>"
-                "<div class='row'><div class='label'>Reboot device</div><button class='btn' onclick='rebootDevice()'>Reboot</button></div>"
-                "<div class='row'><div class='label'>Factory reset</div><button class='btn' onclick='factoryReset()'>Reset</button></div>"
+                "<div class='row'><div class='label'>Reboot device</div><div class='buttons'><button class='btn' onclick='rebootDevice()'>Reboot</button></div></div>"
+                "<div class='row'><div class='label'>Factory reset</div><div class='buttons'><button class='btn' onclick='factoryReset()'>Reset</button></div></div>"
                 "<div class='row'><div class='label'>Location and time</div><span class='status'>coming soon</span></div>"
                 "<div class='row'><div class='label'>Authentication</div><span class='status'>coming soon</span></div>"
                 "</div>"
@@ -493,7 +520,7 @@ static void handleControlPage() {
                 "<span class='status'>Enable Access Point</span></div>"
                 "<div class='row'><div class='label'>AP SSID</div><input id='apSsid' placeholder='ESP32-RGB-Setup'></div>"
                 "<div class='row'><div class='label'>AP Password</div><input id='apPass' type='password'></div>"
-                "<div class='row'><button class='btn' onclick='saveAp()'>Save settings</button></div>"
+                "<div class='row'><div class='buttons'><button class='btn' onclick='saveAp()'>Save settings</button></div></div>"
                 "</div>"
                 "<div class='section'>"
                 "<h3>Wi-Fi status</h3>"
@@ -506,36 +533,42 @@ static void handleControlPage() {
                 "<div class='grid'>"
                 "<div class='section'>"
                 "<h3>Wi-Fi settings</h3>"
-                "<div class='row'><div class='label'>Network</div><input id='wifiSsidInput'></div>"
+                "<div class='row'><div class='label'>Network</div>"
+                "<select id='wifiSsidSelect'></select>"
+                "<input id='wifiSsidInput' placeholder='SSID (manual)'></div>"
                 "<div class='row'><div class='label'>Password</div><input id='wifiPassInput' type='password'></div>"
-                "<div class='row'><button class='btn' onclick='saveWifi()'>Save settings</button></div>"
+                "<div class='row'><div class='buttons'>"
+                "<button class='btn-secondary' onclick='scanWifi()'>Scan</button>"
+                "<button class='btn' onclick='saveWifi()'>Save settings</button></div></div>"
                 "</div>"
                 "<div class='section'>"
                 "<h3>Wi-Fi roaming</h3>"
                 "<div class='row'><div class='label'>RSSI threshold</div><input id='roamRssi' type='number'></div>"
                 "<div class='row'><div class='label'>Interval (s)</div><input id='roamInterval' type='number'></div>"
-                "<div class='row'><button class='btn' onclick='saveRoaming()'>Save settings</button></div>"
+                "<div class='row'><div class='buttons'><button class='btn' onclick='saveRoaming()'>Save settings</button></div></div>"
                 "</div>"
                 "</div>"
                 "<h2>Lighting</h2>"
                 "<div class='section'>"
                 "<div class='row'><div class='label'>Node</div><select id='node'></select></div>"
                 "<div class='row'><div class='label'>Color</div><input type='color' id='color' value='#ff0000'>"
-                "<button class='btn' onclick='applyColor()'>Set</button><button class='btn-secondary' onclick='setOff()'>Off</button></div>"
+                "<div class='buttons'><button class='btn' onclick='applyColor()'>Set</button><button class='btn-secondary' onclick='setOff()'>Off</button></div></div>"
                 "<div class='row'><div class='label'>Effect</div><select id='effect'>"
                 "<option value='solid'>Solid</option>"
                 "<option value='flicker'>Flicker</option>"
                 "<option value='rainbow'>Rainbow</option>"
                 "<option value='pulse'>Pulse</option>"
-                "</select><button class='btn' onclick='applyEffect()'>Apply</button></div>"
+                "</select><div class='buttons'><button class='btn' onclick='applyEffect()'>Apply</button></div></div>"
                 "<div class='row'><div class='label'>Profile</div><input id='profile'>"
-                "<button class='btn' onclick='saveProfile()'>Save</button>"
-                "<button class='btn-secondary' onclick='loadProfile()'>Load</button></div>"
+                "<div class='buttons'><button class='btn' onclick='saveProfile()'>Save</button>"
+                "<button class='btn-secondary' onclick='loadProfile()'>Load</button></div></div>"
                 "</div>"
                 "<script>"
                 "const nodeCount=" + String(NODE_COUNT) + ";"
                 "const nodeSel=document.getElementById('node');"
                 "for(let i=0;i<nodeCount;i++){let o=document.createElement('option');o.value=i;o.text='Node '+(i+1);nodeSel.appendChild(o);} "
+                "const wifiSelect=document.getElementById('wifiSsidSelect');"
+                "wifiSelect.addEventListener('change',()=>{document.getElementById('wifiSsidInput').value=wifiSelect.value;});"
                 "function fetchState(){fetch('/api/state').then(r=>r.json()).then(s=>{"
                 "document.getElementById('effect').value=s.effect;"
                 "document.getElementById('deviceName').value=s.deviceName||'';"
@@ -555,6 +588,11 @@ static void handleControlPage() {
                 "document.getElementById('roamRssi').value=s.rssi;"
                 "document.getElementById('roamInterval').value=s.interval;"
                 "});}"
+                "function scanWifi(){fetch('/api/wifi/scan').then(r=>r.json()).then(s=>{"
+                "wifiSelect.innerHTML='';"
+                "s.networks.forEach(n=>{const opt=document.createElement('option');opt.value=n.ssid;opt.text=n.ssid+' ('+n.rssi+' dBm)';wifiSelect.appendChild(opt);});"
+                "if(s.networks.length>0){document.getElementById('wifiSsidInput').value=s.networks[0].ssid;}"
+                "});}"
                 "function applyColor(){"
                 "const idx=nodeSel.value;const c=document.getElementById('color').value;"
                 "const r=parseInt(c.substr(1,2),16);const g=parseInt(c.substr(3,2),16);const b=parseInt(c.substr(5,2),16);"
@@ -565,7 +603,7 @@ static void handleControlPage() {
                 "function loadProfile(){const n=document.getElementById('profile').value;fetch(`/api/profile/load?name=${encodeURIComponent(n)}`,{method:'POST'}).then(fetchState);} "
                 "function saveAp(){const en=document.getElementById('apEnabled').checked;const ssid=document.getElementById('apSsid').value;const pass=document.getElementById('apPass').value;"
                 "fetch(`/api/ap?enabled=${en?1:0}&ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}`,{method:'POST'});}"
-                "function saveWifi(){const ssid=document.getElementById('wifiSsidInput').value;const pass=document.getElementById('wifiPassInput').value;"
+                "function saveWifi(){const ssid=document.getElementById('wifiSsidInput').value||wifiSelect.value;const pass=document.getElementById('wifiPassInput').value;"
                 "fetch(`/api/wifi?ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}`,{method:'POST'});}"
                 "function saveRoaming(){const rssi=document.getElementById('roamRssi').value;const interval=document.getElementById('roamInterval').value;"
                 "fetch(`/api/roaming?rssi=${encodeURIComponent(rssi)}&interval=${encodeURIComponent(interval)}`,{method:'POST'});}"
@@ -574,7 +612,7 @@ static void handleControlPage() {
                 "function saveDeviceName(){const name=document.getElementById('deviceName').value;"
                 "fetch(`/api/device/name?name=${encodeURIComponent(name)}`,{method:'POST'});}"
                 "document.getElementById('deviceName').addEventListener('change',saveDeviceName);"
-                "setInterval(()=>{fetchState();fetchStatus();},3000);fetchState();fetchStatus();fetchAp();fetchRoaming();"
+                "setInterval(()=>{fetchState();fetchStatus();},3000);fetchState();fetchStatus();fetchAp();fetchRoaming();scanWifi();"
                 "</script></body></html>";
   server.send(200, "text/html", html);
 }
@@ -595,6 +633,7 @@ static void setupWebRoutes() {
   server.on("/api/ap", HTTP_POST, handleApSettings);
   server.on("/api/ap", HTTP_GET, handleApSettings);
   server.on("/api/wifi", HTTP_POST, handleWiFiSettings);
+  server.on("/api/wifi/scan", HTTP_GET, handleWiFiScan);
   server.on("/api/roaming", HTTP_POST, handleRoamingSettings);
   server.on("/api/roaming", HTTP_GET, handleRoamingSettings);
   server.on("/api/status", HTTP_GET, handleWiFiStatus);
