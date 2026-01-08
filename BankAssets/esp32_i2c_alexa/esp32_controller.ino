@@ -288,13 +288,44 @@ static void handleApSettings() {
 }
 
 static void handleWiFiSettings() {
+  String ssid = prefs.getString(PREF_WIFI_SSID, "");
+  String pass = prefs.getString(PREF_WIFI_PASS, "");
+
   if (server.hasArg("ssid")) {
-    prefs.putString(PREF_WIFI_SSID, server.arg("ssid"));
+    String incoming = server.arg("ssid");
+    if (incoming.length() > 0) {
+      ssid = incoming;
+      prefs.putString(PREF_WIFI_SSID, ssid);
+    }
   }
   if (server.hasArg("pass")) {
-    prefs.putString(PREF_WIFI_PASS, server.arg("pass"));
+    String incoming = server.arg("pass");
+    if (incoming.length() > 0) {
+      pass = incoming;
+      prefs.putString(PREF_WIFI_PASS, pass);
+    }
   }
-  server.send(200, "text/plain", "saved");
+
+  bool connected = false;
+  if (ssid.length() > 0) {
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid.c_str(), pass.c_str());
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 12000) {
+      delay(300);
+    }
+    connected = WiFi.status() == WL_CONNECTED;
+    if (connected && deviceSettings.apEnabled) {
+      WiFi.mode(WIFI_AP_STA);
+      startAccessPoint();
+    }
+  }
+
+  String response = "{\"saved\":true,\"connected\":";
+  response += String(connected ? "true" : "false");
+  response += ",\"ip\":\"" + WiFi.localIP().toString() + "\"}";
+  server.send(200, "application/json", response);
 }
 
 static void handleWiFiScan() {
