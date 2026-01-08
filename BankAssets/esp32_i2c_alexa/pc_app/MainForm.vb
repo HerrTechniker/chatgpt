@@ -1,6 +1,7 @@
 Imports System
 Imports System.Net.Http
 Imports System.Text.Json
+Imports System.Text.Json.Serialization
 Imports System.Threading.Tasks
 Imports System.Windows.Forms
 
@@ -169,7 +170,8 @@ Public Class MainForm
         Public Property R As Integer
         Public Property G As Integer
         Public Property B As Integer
-        Public Property On As Boolean
+        <JsonPropertyName("on")>
+        Public Property IsOn As Boolean
     End Class
 
     Private Class ApiState
