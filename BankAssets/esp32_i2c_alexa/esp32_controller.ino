@@ -79,6 +79,7 @@ bool nodeAvailable[NODE_COUNT];
 bool nodeWasAvailable[NODE_COUNT];
 unsigned long lastNodeScan = 0;
 constexpr unsigned long NODE_SCAN_INTERVAL_MS = 5000;
+bool wifiConnected = false;
 
 static void sendRgb(uint8_t address, uint8_t r, uint8_t g, uint8_t b) {
   Wire.beginTransmission(address);
@@ -829,7 +830,8 @@ void setup() {
   deviceSettings.roamRssi = prefs.getInt(PREF_ROAM_RSSI, -80);
   deviceSettings.roamInterval = prefs.getInt(PREF_ROAM_INTERVAL, 60);
 
-  if (!connectWiFi()) {
+  wifiConnected = connectWiFi();
+  if (!wifiConnected) {
     apMode = true;
     WiFi.mode(WIFI_AP);
     startAccessPoint();
@@ -840,6 +842,7 @@ void setup() {
       WiFi.mode(WIFI_AP_STA);
       startAccessPoint();
     }
+    lastNodeScan = millis() - NODE_SCAN_INTERVAL_MS;
   }
 
   setupWebRoutes();
@@ -881,17 +884,19 @@ void loop() {
       udp.endPacket();
     }
   }
-  unsigned long now = millis();
-  if (now - lastNodeScan >= NODE_SCAN_INTERVAL_MS) {
-    lastNodeScan = now;
-    for (size_t i = 0; i < NODE_COUNT; ++i) {
-      nodeAvailable[i] = probeAddress(nodeAddresses[i]);
-      if (nodeAvailable[i] != nodeWasAvailable[i]) {
-        Serial.print("I2C: LED ");
-        Serial.print(i + 1);
-        Serial.print(nodeAvailable[i] ? " verbunden" : " getrennt");
-        Serial.println();
-        nodeWasAvailable[i] = nodeAvailable[i];
+  if (wifiConnected) {
+    unsigned long now = millis();
+    if (now - lastNodeScan >= NODE_SCAN_INTERVAL_MS) {
+      lastNodeScan = now;
+      for (size_t i = 0; i < NODE_COUNT; ++i) {
+        nodeAvailable[i] = probeAddress(nodeAddresses[i]);
+        if (nodeAvailable[i] != nodeWasAvailable[i]) {
+          Serial.print("I2C: LED ");
+          Serial.print(i + 1);
+          Serial.print(nodeAvailable[i] ? " verbunden" : " getrennt");
+          Serial.println();
+          nodeWasAvailable[i] = nodeAvailable[i];
+        }
       }
     }
   }
