@@ -23,7 +23,8 @@ constexpr char PREF_ROAM_INTERVAL[] = "roam_int";
 // ===== I2C =====
 constexpr uint8_t I2C_SDA = 21;
 constexpr uint8_t I2C_SCL = 22;
-constexpr uint32_t I2C_SPEED = 400000;
+constexpr uint32_t I2C_SPEED = 100000;
+constexpr uint8_t DEFAULT_NODE_ADDRESS = 0x08;
 
 // ===== I2C Protokoll =====
 // 0x00 = General Call (Adressvergabe)
@@ -78,6 +79,7 @@ DeviceSettings deviceSettings;
 bool nodeAvailable[NODE_COUNT];
 bool nodeWasAvailable[NODE_COUNT];
 bool nodeHasStatus[NODE_COUNT];
+bool autoAssignAttempted = false;
 unsigned long lastNodeScan = 0;
 constexpr unsigned long NODE_SCAN_INTERVAL_MS = 5000;
 bool wifiConnected = false;
@@ -890,8 +892,15 @@ void loop() {
     unsigned long now = millis();
     if (now - lastNodeScan >= NODE_SCAN_INTERVAL_MS) {
       lastNodeScan = now;
+      bool anyAvailable = false;
+      size_t firstMissing = NODE_COUNT;
       for (size_t i = 0; i < NODE_COUNT; ++i) {
         nodeAvailable[i] = probeAddress(nodeAddresses[i]);
+        if (nodeAvailable[i]) {
+          anyAvailable = true;
+        } else if (firstMissing == NODE_COUNT) {
+          firstMissing = i;
+        }
         if (!nodeHasStatus[i] || nodeAvailable[i] != nodeWasAvailable[i]) {
           Serial.print("I2C: LED ");
           Serial.print(i + 1);
@@ -899,6 +908,14 @@ void loop() {
           Serial.println();
           nodeWasAvailable[i] = nodeAvailable[i];
           nodeHasStatus[i] = true;
+        }
+      }
+      if (!anyAvailable && !autoAssignAttempted && firstMissing != NODE_COUNT) {
+        if (probeAddress(DEFAULT_NODE_ADDRESS)) {
+          Serial.print("I2C: Unzugewiesener ATmega gefunden, vergebe Adresse ");
+          Serial.println(nodeAddresses[firstMissing], HEX);
+          assignAddress(nodeAddresses[firstMissing]);
+          autoAssignAttempted = true;
         }
       }
     }
