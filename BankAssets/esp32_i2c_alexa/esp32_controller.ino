@@ -85,8 +85,12 @@ static void sendRgb(uint8_t address, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 static bool probeAddress(uint8_t address) {
-  Wire.beginTransmission(address);
-  return Wire.endTransmission() == 0;
+  Wire.requestFrom(static_cast<int>(address), 1);
+  if (Wire.available() <= 0) {
+    return false;
+  }
+  uint8_t value = Wire.read();
+  return value == 0x7E;
 }
 
 static void sendOff(uint8_t address) {

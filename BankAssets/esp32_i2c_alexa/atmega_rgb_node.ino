@@ -10,6 +10,7 @@ constexpr uint8_t EEPROM_COLOR_LOCATION = 4; // 3 Bytes (R,G,B)
 // ===== I2C Protokoll =====
 constexpr uint8_t CMD_SET_RGB = 0x10;       // 3 Bytes: R, G, B
 constexpr uint8_t CMD_SET_OFF = 0x11;       // LED aus
+constexpr uint8_t RESP_STATUS = 0x7E;       // Antwort-Byte bei I2C-Request
 constexpr uint8_t CMD_ASSIGN_ADDRESS = 0xA0; // Payload: 1 Byte neue Adresse (General Call)
 
 // ===== RGB Pins (PWM) =====
@@ -81,6 +82,11 @@ static void onReceive(int count) {
   }
 }
 
+static void onRequest() {
+  // Master fragt Status ab: 1 Byte senden
+  Wire.write(RESP_STATUS);
+}
+
 void setup() {
   pinMode(PIN_R, OUTPUT);
   pinMode(PIN_G, OUTPUT);
@@ -94,6 +100,7 @@ void setup() {
   TWAR = (currentAddress << 1) | 0x01;
 #endif
   Wire.onReceive(onReceive);
+  Wire.onRequest(onRequest);
 
   // Startzustand: aus
   uint8_t r = 0;
