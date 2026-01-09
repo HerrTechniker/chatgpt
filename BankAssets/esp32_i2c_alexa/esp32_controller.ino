@@ -310,11 +310,14 @@ static void handleWiFiSettings() {
   String ssid = prefs.getString(PREF_WIFI_SSID, "");
   String pass = prefs.getString(PREF_WIFI_PASS, "");
 
+  Serial.println("WLAN: Speichern der Zugangsdaten");
   if (server.hasArg("ssid")) {
     String incoming = server.arg("ssid");
     if (incoming.length() > 0) {
       ssid = incoming;
       prefs.putString(PREF_WIFI_SSID, ssid);
+      Serial.print("WLAN: neue SSID=");
+      Serial.println(ssid);
     }
   }
   if (server.hasArg("pass")) {
@@ -322,19 +325,25 @@ static void handleWiFiSettings() {
     if (incoming.length() > 0) {
       pass = incoming;
       prefs.putString(PREF_WIFI_PASS, pass);
+      Serial.println("WLAN: neues Passwort gesetzt");
     }
   }
 
   bool connected = false;
   if (ssid.length() > 0) {
+    Serial.println("WLAN: starte Verbindungsversuch");
     WiFi.disconnect(true);
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid.c_str(), pass.c_str());
     unsigned long start = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - start < 12000) {
       delay(300);
+      Serial.print(".");
     }
+    Serial.println();
     connected = WiFi.status() == WL_CONNECTED;
+    Serial.print("WLAN: Status=");
+    Serial.println(connected ? "CONNECTED" : "DISCONNECTED");
     if (connected && deviceSettings.apEnabled) {
       WiFi.mode(WIFI_AP_STA);
       startAccessPoint();
@@ -705,14 +714,21 @@ static bool connectWiFi() {
   String ssid = prefs.getString(PREF_WIFI_SSID, "");
   String pass = prefs.getString(PREF_WIFI_PASS, "");
   if (ssid.length() == 0) {
+    Serial.println("WLAN: keine gespeicherte SSID gefunden");
     return false;
   }
+  Serial.print("WLAN: verbinde mit SSID=");
+  Serial.println(ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid.c_str(), pass.c_str());
   unsigned long start = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - start < 12000) {
     delay(300);
+    Serial.print(".");
   }
+  Serial.println();
+  Serial.print("WLAN: Status=");
+  Serial.println(WiFi.status() == WL_CONNECTED ? "CONNECTED" : "DISCONNECTED");
   return WiFi.status() == WL_CONNECTED;
 }
 
