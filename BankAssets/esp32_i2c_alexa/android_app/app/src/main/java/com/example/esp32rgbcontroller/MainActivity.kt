@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -22,10 +21,9 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
-    private lateinit var manualIpInput: EditText
-    private lateinit var connectButton: Button
     private lateinit var scanButton: Button
     private lateinit var deviceList: ListView
+    private lateinit var addButton: Button
 
     private val devices = mutableListOf<DiscoveredDevice>()
     private lateinit var adapter: ArrayAdapter<String>
@@ -36,20 +34,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         statusText = findViewById(R.id.statusText)
-        manualIpInput = findViewById(R.id.manualIpInput)
-        connectButton = findViewById(R.id.connectButton)
         scanButton = findViewById(R.id.scanButton)
         deviceList = findViewById(R.id.deviceList)
+        addButton = findViewById(R.id.addButton)
 
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
         deviceList.adapter = adapter
-
-        connectButton.setOnClickListener {
-            val manual = manualIpInput.text.toString().trim()
-            if (manual.isNotEmpty()) {
-                openControl(normalizeUrl(manual))
-            }
-        }
 
         scanButton.setOnClickListener {
             startScan()
@@ -57,6 +47,12 @@ class MainActivity : AppCompatActivity() {
 
         deviceList.setOnItemClickListener { _, _, position, _ ->
             val selected = devices[position]
+            addButton.isEnabled = true
+            addButton.tag = selected
+        }
+
+        addButton.setOnClickListener {
+            val selected = addButton.tag as? DiscoveredDevice ?: return@setOnClickListener
             openControl(selected.baseUrl)
         }
     }
@@ -71,6 +67,8 @@ class MainActivity : AppCompatActivity() {
         statusText.text = "Suche im Netzwerk..."
         devices.clear()
         adapter.clear()
+        addButton.isEnabled = false
+        addButton.tag = null
 
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val dhcp = wifiManager.dhcpInfo
@@ -169,10 +167,6 @@ class MainActivity : AppCompatActivity() {
                 (value shr 24 and 0xFF).toByte()
             )
         ).hostAddress ?: "0.0.0.0"
-    }
-
-    private fun normalizeUrl(value: String): String {
-        return if (value.startsWith("http")) value else "http://$value"
     }
 
     private data class DiscoveredDevice(val baseUrl: String, val name: String)

@@ -12,27 +12,12 @@
         android:text="Bereit zum Scannen"
         android:textStyle="bold" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/scanHint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/manualIpInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="http://192.168.1.50:8080"
-            android:inputType="textUri" />
-
-        <Button
-            android:id="@+id/connectButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Verbinden" />
-    </LinearLayout>
+        android:text="Drücke auf Scan, um ESP32-Geräte im WLAN zu finden." />
 
     <Button
         android:id="@+id/scanButton"
@@ -52,4 +37,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Ausgewähltes Gerät hinzufügen"
+        android:enabled="false" />
 </LinearLayout>

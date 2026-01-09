@@ -4,7 +4,7 @@ Diese Android-App bietet eine eigene Oberfläche (ohne WebView) und enthält ein
 
 ## Funktionen
 
-- Setup‑Screen mit Netzwerkscan und manueller IP/URL
+- Setup‑Screen mit Netzwerkscan (ESP32 automatisch finden)
 - Automatische Erkennung von ESP32‑Geräten über `/api/state`
 - Steuerung von LED‑Knoten (RGB per Slider, On/Off)
 - Effektwahl (solid, flicker, rainbow, pulse)
@@ -15,4 +15,4 @@ Diese Android-App bietet eine eigene Oberfläche (ohne WebView) und enthält ein
 2. Gradle sync ausführen.
 3. App auf einem Gerät (Android 9+) starten.
 
-> Hinweis: Scan benötigt eine aktive WLAN‑Verbindung. Falls kein Gerät gefunden wird, kann die IP manuell eingetragen werden.
+> Hinweis: Scan benötigt eine aktive WLAN‑Verbindung. Wähle ein gefundenes Gerät aus und tippe auf „Hinzufügen“.
