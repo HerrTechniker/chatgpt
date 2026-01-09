@@ -5,6 +5,7 @@ Diese Android-App bietet eine eigene Oberfläche (ohne WebView) und enthält ein
 ## Funktionen
 
 - Setup‑Screen mit Netzwerkscan (ESP32 automatisch finden)
+- Fallback: Broadcast‑Discovery, falls der normale Scan kein Gerät findet
 - Automatische Erkennung von ESP32‑Geräten über `/api/state`
 - Steuerung von LED‑Knoten (RGB per Slider, On/Off)
 - Effektwahl (solid, flicker, rainbow, pulse)

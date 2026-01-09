@@ -3,6 +3,7 @@
 #include <WebServer.h>
 #include <Wire.h>
 #include <Preferences.h>
+#include <WiFiUdp.h>
 #include <fauxmoESP.h>
 
 // ===== WLAN / Setup =====
@@ -41,6 +42,9 @@ constexpr size_t NODE_COUNT = sizeof(nodeAddresses) / sizeof(nodeAddresses[0]);
 fauxmoESP fauxmo;
 WebServer server(8080);
 Preferences prefs;
+WiFiUDP udp;
+constexpr uint16_t DISCOVERY_PORT = 4210;
+constexpr char DISCOVERY_REQUEST[] = "ESP32_DISCOVER";
 
 struct NodeState {
   uint8_t r;
@@ -852,6 +856,10 @@ void setup() {
 
   fauxmo.onSetState(onFauxmoEvent);
 
+  udp.begin(DISCOVERY_PORT);
+  Serial.print("Discovery UDP aktiv auf Port ");
+  Serial.println(DISCOVERY_PORT);
+
   // Beispiel: Adressvergabe (nur ein unzugewiesener ATmega gleichzeitig einschalten!)
   // assignAddress(0x09);
   // assignAddress(0x0A);
@@ -862,6 +870,17 @@ void loop() {
   fauxmo.handle();
   server.handleClient();
   tickEffects();
+  int packetSize = udp.parsePacket();
+  if (packetSize > 0) {
+    char buffer[64] = {0};
+    int len = udp.read(buffer, sizeof(buffer) - 1);
+    if (len > 0 && String(buffer) == DISCOVERY_REQUEST) {
+      String response = "{\"deviceName\":\"" + deviceSettings.name + "\",\"port\":8080}";
+      udp.beginPacket(udp.remoteIP(), udp.remotePort());
+      udp.write(reinterpret_cast<const uint8_t *>(response.c_str()), response.length());
+      udp.endPacket();
+    }
+  }
   unsigned long now = millis();
   if (now - lastNodeScan >= NODE_SCAN_INTERVAL_MS) {
     lastNodeScan = now;

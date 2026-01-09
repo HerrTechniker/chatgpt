@@ -15,6 +15,8 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
+import java.net.DatagramPacket
+import java.net.DatagramSocket
 import java.net.HttpURLConnection
 import java.net.InetAddress
 import java.net.URL
@@ -111,7 +113,12 @@ class MainActivity : AppCompatActivity() {
         executor.shutdown()
         Thread {
             executor.awaitTermination(60, TimeUnit.SECONDS)
-            updateStatus("Scan abgeschlossen: ${devices.size} Geräte")
+            if (devices.isEmpty()) {
+                updateStatus("Kein Gerät gefunden, starte Broadcast-Suche...")
+                runBroadcastDiscovery()
+            } else {
+                updateStatus("Scan abgeschlossen: ${devices.size} Geräte")
+            }
         }.start()
     }
 
@@ -156,6 +163,44 @@ class MainActivity : AppCompatActivity() {
         mainHandler.post {
             statusText.text = text
         }
+    }
+
+    private fun runBroadcastDiscovery() {
+        val executor = Executors.newSingleThreadExecutor()
+        executor.execute {
+            try {
+                val socket = DatagramSocket()
+                socket.broadcast = true
+                socket.soTimeout = 1500
+
+                val requestData = "ESP32_DISCOVER".toByteArray()
+                val broadcastAddress = InetAddress.getByName("255.255.255.255")
+                val request = DatagramPacket(requestData, requestData.size, broadcastAddress, 4210)
+                socket.send(request)
+
+                val buffer = ByteArray(512)
+                val response = DatagramPacket(buffer, buffer.size)
+                val start = System.currentTimeMillis()
+                while (System.currentTimeMillis() - start < 2000) {
+                    try {
+                        socket.receive(response)
+                        val payload = String(response.data, 0, response.length)
+                        val json = JSONObject(payload)
+                        val name = json.optString("deviceName", "ESP32")
+                        val port = json.optInt("port", 8080)
+                        val ip = response.address.hostAddress
+                        addDevice(DiscoveredDevice("http://$ip:$port", name))
+                    } catch (_: Exception) {
+                        break
+                    }
+                }
+                socket.close()
+                updateStatus("Broadcast abgeschlossen: ${devices.size} Geräte")
+            } catch (ex: Exception) {
+                updateStatus("Broadcast fehlgeschlagen: ${ex.message}")
+            }
+        }
+        executor.shutdown()
     }
 
     private fun intToIp(value: Int): String {
