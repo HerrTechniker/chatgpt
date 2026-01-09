@@ -332,18 +332,34 @@ static void handleWiFiSettings() {
   bool connected = false;
   if (ssid.length() > 0) {
     Serial.println("WLAN: starte Verbindungsversuch");
-    WiFi.disconnect(true);
+    WiFi.disconnect(true, true);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid.c_str(), pass.c_str());
-    unsigned long start = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - start < 12000) {
-      delay(300);
-      Serial.print(".");
+    WiFi.setSleep(false);
+    WiFi.setAutoReconnect(true);
+    delay(200);
+
+    constexpr int kMaxAttempts = 3;
+    for (int attempt = 1; attempt <= kMaxAttempts && !connected; ++attempt) {
+      Serial.print("WLAN: Versuch ");
+      Serial.print(attempt);
+      Serial.print("/");
+      Serial.println(kMaxAttempts);
+      WiFi.begin(ssid.c_str(), pass.c_str());
+      unsigned long start = millis();
+      while (WiFi.status() != WL_CONNECTED && millis() - start < 20000) {
+        delay(300);
+        Serial.print(".");
+      }
+      Serial.println();
+      connected = WiFi.status() == WL_CONNECTED;
+      Serial.print("WLAN: Status=");
+      Serial.println(connected ? "CONNECTED" : "DISCONNECTED");
+      if (!connected) {
+        WiFi.disconnect(true, true);
+        delay(500);
+      }
     }
-    Serial.println();
-    connected = WiFi.status() == WL_CONNECTED;
-    Serial.print("WLAN: Status=");
-    Serial.println(connected ? "CONNECTED" : "DISCONNECTED");
+
     if (connected && deviceSettings.apEnabled) {
       WiFi.mode(WIFI_AP_STA);
       startAccessPoint();
@@ -719,17 +735,35 @@ static bool connectWiFi() {
   }
   Serial.print("WLAN: verbinde mit SSID=");
   Serial.println(ssid);
+  WiFi.disconnect(true, true);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid.c_str(), pass.c_str());
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 12000) {
-    delay(300);
-    Serial.print(".");
+  WiFi.setSleep(false);
+  WiFi.setAutoReconnect(true);
+  delay(200);
+
+  bool connected = false;
+  constexpr int kMaxAttempts = 3;
+  for (int attempt = 1; attempt <= kMaxAttempts && !connected; ++attempt) {
+    Serial.print("WLAN: Versuch ");
+    Serial.print(attempt);
+    Serial.print("/");
+    Serial.println(kMaxAttempts);
+    WiFi.begin(ssid.c_str(), pass.c_str());
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 20000) {
+      delay(300);
+      Serial.print(".");
+    }
+    Serial.println();
+    connected = WiFi.status() == WL_CONNECTED;
+    Serial.print("WLAN: Status=");
+    Serial.println(connected ? "CONNECTED" : "DISCONNECTED");
+    if (!connected) {
+      WiFi.disconnect(true, true);
+      delay(500);
+    }
   }
-  Serial.println();
-  Serial.print("WLAN: Status=");
-  Serial.println(WiFi.status() == WL_CONNECTED ? "CONNECTED" : "DISCONNECTED");
-  return WiFi.status() == WL_CONNECTED;
+  return connected;
 }
 
 static void startAccessPoint() {
