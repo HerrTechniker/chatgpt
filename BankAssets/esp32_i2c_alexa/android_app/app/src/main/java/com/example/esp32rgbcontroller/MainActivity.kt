@@ -2,6 +2,9 @@ package com.example.esp32rgbcontroller
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.LinkProperties
+import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
@@ -70,17 +73,14 @@ class MainActivity : AppCompatActivity() {
         addButton.isEnabled = false
         addButton.tag = null
 
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val dhcp = wifiManager.dhcpInfo
-        val ip = dhcp.ipAddress
-        val mask = dhcp.netmask
-        if (ip == 0 || mask == 0) {
+        val networkInfo = resolveWifiNetwork()
+        if (networkInfo == null) {
             statusText.text = "Keine WLAN-Verbindung gefunden"
             return
         }
 
-        val network = ip and mask
-        val broadcast = network or mask.inv()
+        val network = networkInfo.address and networkInfo.mask
+        val broadcast = network or networkInfo.mask.inv()
         val addresses = ConcurrentLinkedQueue<Int>()
         for (addr in network + 1 until broadcast) {
             addresses.add(addr)
@@ -168,6 +168,48 @@ class MainActivity : AppCompatActivity() {
             )
         ).hostAddress ?: "0.0.0.0"
     }
+
+    private fun resolveWifiNetwork(): NetworkInfo? {
+        val connectivity = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val active = connectivity.activeNetwork ?: return resolveWifiNetworkLegacy()
+        val caps = connectivity.getNetworkCapabilities(active) ?: return resolveWifiNetworkLegacy()
+        if (!caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+            return null
+        }
+        val link = connectivity.getLinkProperties(active) ?: return resolveWifiNetworkLegacy()
+        val info = resolveIpv4(link)
+        return info ?: resolveWifiNetworkLegacy()
+    }
+
+    private fun resolveIpv4(link: LinkProperties): NetworkInfo? {
+        for (address in link.linkAddresses) {
+            val inet = address.address
+            if (inet is java.net.Inet4Address) {
+                val ipInt = inet.address
+                val ip = (ipInt[0].toInt() and 0xFF) or
+                    ((ipInt[1].toInt() and 0xFF) shl 8) or
+                    ((ipInt[2].toInt() and 0xFF) shl 16) or
+                    ((ipInt[3].toInt() and 0xFF) shl 24)
+                val prefix = address.prefixLength
+                val mask = if (prefix == 0) 0 else (-1 shl (32 - prefix))
+                return NetworkInfo(ip, mask)
+            }
+        }
+        return null
+    }
+
+    private fun resolveWifiNetworkLegacy(): NetworkInfo? {
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val dhcp = wifiManager.dhcpInfo ?: return null
+        val ip = dhcp.ipAddress
+        val mask = dhcp.netmask
+        if (ip == 0 || mask == 0) {
+            return null
+        }
+        return NetworkInfo(ip, mask)
+    }
+
+    private data class NetworkInfo(val address: Int, val mask: Int)
 
     private data class DiscoveredDevice(val baseUrl: String, val name: String)
 }
