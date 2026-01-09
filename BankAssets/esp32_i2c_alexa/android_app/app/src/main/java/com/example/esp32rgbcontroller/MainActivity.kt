@@ -1,36 +1,179 @@
 package com.example.esp32rgbcontroller
 
+import android.content.Context
+import android.content.Intent
+import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.os.Handler
+import android.os.Looper
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ListView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.InetAddress
+import java.net.URL
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var urlInput: EditText
-    private lateinit var openButton: Button
-    private lateinit var webView: WebView
+    private lateinit var statusText: TextView
+    private lateinit var manualIpInput: EditText
+    private lateinit var connectButton: Button
+    private lateinit var scanButton: Button
+    private lateinit var deviceList: ListView
+
+    private val devices = mutableListOf<DiscoveredDevice>()
+    private lateinit var adapter: ArrayAdapter<String>
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        urlInput = findViewById(R.id.urlInput)
-        openButton = findViewById(R.id.openButton)
-        webView = findViewById(R.id.webView)
+        statusText = findViewById(R.id.statusText)
+        manualIpInput = findViewById(R.id.manualIpInput)
+        connectButton = findViewById(R.id.connectButton)
+        scanButton = findViewById(R.id.scanButton)
+        deviceList = findViewById(R.id.deviceList)
 
-        webView.webViewClient = WebViewClient()
-        val settings: WebSettings = webView.settings
-        settings.javaScriptEnabled = true
-        settings.domStorageEnabled = true
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
+        deviceList.adapter = adapter
 
-        openButton.setOnClickListener {
-            val url = urlInput.text.toString().trim().ifEmpty { "http://esp32.local:8080" }
-            webView.loadUrl(url)
+        connectButton.setOnClickListener {
+            val manual = manualIpInput.text.toString().trim()
+            if (manual.isNotEmpty()) {
+                openControl(normalizeUrl(manual))
+            }
         }
 
-        webView.loadUrl("http://esp32.local:8080")
+        scanButton.setOnClickListener {
+            startScan()
+        }
+
+        deviceList.setOnItemClickListener { _, _, position, _ ->
+            val selected = devices[position]
+            openControl(selected.baseUrl)
+        }
     }
+
+    private fun openControl(baseUrl: String) {
+        val intent = Intent(this, ControlActivity::class.java)
+        intent.putExtra(ControlActivity.EXTRA_BASE_URL, baseUrl)
+        startActivity(intent)
+    }
+
+    private fun startScan() {
+        statusText.text = "Suche im Netzwerk..."
+        devices.clear()
+        adapter.clear()
+
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val dhcp = wifiManager.dhcpInfo
+        val ip = dhcp.ipAddress
+        val mask = dhcp.netmask
+        if (ip == 0 || mask == 0) {
+            statusText.text = "Keine WLAN-Verbindung gefunden"
+            return
+        }
+
+        val network = ip and mask
+        val broadcast = network or mask.inv()
+        val addresses = ConcurrentLinkedQueue<Int>()
+        for (addr in network + 1 until broadcast) {
+            addresses.add(addr)
+        }
+
+        val executor = Executors.newFixedThreadPool(20)
+        val total = addresses.size
+        var scanned = 0
+
+        repeat(20) {
+            executor.execute {
+                while (true) {
+                    val current = addresses.poll() ?: break
+                    val ipString = intToIp(current)
+                    val baseUrl = "http://$ipString:8080"
+                    if (probeDevice(baseUrl)) {
+                        val name = fetchDeviceName(baseUrl)
+                        addDevice(DiscoveredDevice(baseUrl, name))
+                    }
+                    scanned++
+                    if (scanned % 50 == 0) {
+                        updateStatus("Scan: $scanned/$total")
+                    }
+                }
+            }
+        }
+
+        executor.shutdown()
+        Thread {
+            executor.awaitTermination(60, TimeUnit.SECONDS)
+            updateStatus("Scan abgeschlossen: ${devices.size} Geräte")
+        }.start()
+    }
+
+    private fun probeDevice(baseUrl: String): Boolean {
+        return try {
+            val url = URL("$baseUrl/api/state")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = 600
+            conn.readTimeout = 600
+            conn.inputStream.use { it.readBytes() }
+            conn.responseCode == 200
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun fetchDeviceName(baseUrl: String): String {
+        return try {
+            val url = URL("$baseUrl/api/state")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = 800
+            conn.readTimeout = 800
+            val payload = conn.inputStream.bufferedReader().readText()
+            val json = JSONObject(payload)
+            json.optString("deviceName", "ESP32")
+        } catch (_: Exception) {
+            "ESP32"
+        }
+    }
+
+    private fun addDevice(device: DiscoveredDevice) {
+        mainHandler.post {
+            if (devices.none { it.baseUrl == device.baseUrl }) {
+                devices.add(device)
+                adapter.add("${device.name} (${device.baseUrl})")
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    private fun updateStatus(text: String) {
+        mainHandler.post {
+            statusText.text = text
+        }
+    }
+
+    private fun intToIp(value: Int): String {
+        return InetAddress.getByAddress(
+            byteArrayOf(
+                (value and 0xFF).toByte(),
+                (value shr 8 and 0xFF).toByte(),
+                (value shr 16 and 0xFF).toByte(),
+                (value shr 24 and 0xFF).toByte()
+            )
+        ).hostAddress ?: "0.0.0.0"
+    }
+
+    private fun normalizeUrl(value: String): String {
+        return if (value.startsWith("http")) value else "http://$value"
+    }
+
+    private data class DiscoveredDevice(val baseUrl: String, val name: String)
 }

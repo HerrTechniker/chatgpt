@@ -2,32 +2,53 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bereit zum Scannen"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal">
 
         <EditText
-            android:id="@+id/urlInput"
+            android:id="@+id/manualIpInput"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="http://esp32.local:8080"
+            android:hint="http://192.168.1.50:8080"
             android:inputType="textUri" />
 
         <Button
-            android:id="@+id/openButton"
+            android:id="@+id/connectButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Open" />
+            android:text="Verbinden" />
     </LinearLayout>
 
-    <WebView
-        android:id="@+id/webView"
+    <Button
+        android:id="@+id/scanButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Netzwerk nach ESP32 scannen" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Gefundene Geräte" />
+
+    <ListView
+        android:id="@+id/deviceList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />

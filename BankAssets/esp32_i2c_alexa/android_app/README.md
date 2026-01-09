@@ -1,11 +1,13 @@
 # Android App (ESP32 RGB Controller)
 
-Ein minimales Android-Client-Projekt (Android 9 / API 28+), das die Web-UI des ESP32 in einer `WebView` anzeigt.
+Diese Android-App bietet eine eigene Oberfläche (ohne WebView) und enthält einen Setup‑Screen, der das lokale Netzwerk nach einem ESP32 sucht.
 
 ## Funktionen
 
-- URL-Eingabe (z. B. `http://esp32.local:8080`)
-- Öffnet die ESP32-Weboberfläche und übernimmt die Synchronisation über die vorhandene Web-UI.
+- Setup‑Screen mit Netzwerkscan und manueller IP/URL
+- Automatische Erkennung von ESP32‑Geräten über `/api/state`
+- Steuerung von LED‑Knoten (RGB per Slider, On/Off)
+- Effektwahl (solid, flicker, rainbow, pulse)
 
 ## Build
 
@@ -13,4 +15,4 @@ Ein minimales Android-Client-Projekt (Android 9 / API 28+), das die Web-UI des E
 2. Gradle sync ausführen.
 3. App auf einem Gerät (Android 9+) starten.
 
-> Hinweis: Die Web-UI muss erreichbar sein. Gegebenenfalls im gleichen WLAN bleiben.
+> Hinweis: Scan benötigt eine aktive WLAN‑Verbindung. Falls kein Gerät gefunden wird, kann die IP manuell eingetragen werden.
