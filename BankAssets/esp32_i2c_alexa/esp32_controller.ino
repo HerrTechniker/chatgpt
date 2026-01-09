@@ -71,6 +71,9 @@ bool apMode = false;
 unsigned long lastEffectTick = 0;
 uint16_t rainbowHue = 0;
 DeviceSettings deviceSettings;
+bool nodeAvailable[NODE_COUNT];
+unsigned long lastNodeScan = 0;
+constexpr unsigned long NODE_SCAN_INTERVAL_MS = 5000;
 
 static void sendRgb(uint8_t address, uint8_t r, uint8_t g, uint8_t b) {
   Wire.beginTransmission(address);
@@ -79,6 +82,11 @@ static void sendRgb(uint8_t address, uint8_t r, uint8_t g, uint8_t b) {
   Wire.write(g);
   Wire.write(b);
   Wire.endTransmission();
+}
+
+static bool probeAddress(uint8_t address) {
+  Wire.beginTransmission(address);
+  return Wire.endTransmission() == 0;
 }
 
 static void sendOff(uint8_t address) {
@@ -97,6 +105,10 @@ static void assignAddress(uint8_t newAddress) {
 
 static void applyNodeState(size_t index) {
   if (index >= NODE_COUNT) {
+    return;
+  }
+
+  if (!nodeAvailable[index]) {
     return;
   }
 
@@ -161,7 +173,7 @@ static void tickEffects() {
       return;
     case EffectMode::Flicker:
       for (size_t i = 0; i < NODE_COUNT; ++i) {
-        if (!nodes[i].on) {
+        if (!nodes[i].on || !nodeAvailable[i]) {
           continue;
         }
         uint8_t jitter = random(120, 255);
@@ -171,7 +183,7 @@ static void tickEffects() {
     case EffectMode::Rainbow: {
       rainbowHue = (rainbowHue + 3) % 360;
       for (size_t i = 0; i < NODE_COUNT; ++i) {
-        if (!nodes[i].on) {
+        if (!nodes[i].on || !nodeAvailable[i]) {
           continue;
         }
         uint16_t hue = (rainbowHue + (i * 360 / NODE_COUNT)) % 360;
@@ -184,7 +196,7 @@ static void tickEffects() {
     case EffectMode::Pulse: {
       uint8_t level = static_cast<uint8_t>((sin(now / 400.0) + 1.0) * 120.0);
       for (size_t i = 0; i < NODE_COUNT; ++i) {
-        if (!nodes[i].on) {
+        if (!nodes[i].on || !nodeAvailable[i]) {
           continue;
         }
         sendRgb(nodeAddresses[i], (nodes[i].r * level) / 255, (nodes[i].g * level) / 255, (nodes[i].b * level) / 255);
@@ -232,6 +244,13 @@ static void handleState() {
     json += "\"b\":" + String(nodes[i].b) + ",";
     json += "\"on\":" + String(nodes[i].on ? "true" : "false");
     json += "}";
+    if (i + 1 < NODE_COUNT) {
+      json += ",";
+    }
+  }
+  json += "],\"available\":[";
+  for (size_t i = 0; i < NODE_COUNT; ++i) {
+    json += String(nodeAvailable[i] ? "true" : "false");
     if (i + 1 < NODE_COUNT) {
       json += ",";
     }
@@ -376,6 +395,11 @@ static void handleNodeUpdate() {
   size_t node = static_cast<size_t>(server.arg("node").toInt());
   if (node >= NODE_COUNT) {
     server.send(400, "text/plain", "invalid node");
+    return;
+  }
+
+  if (!nodeAvailable[node]) {
+    server.send(409, "text/plain", "node not available");
     return;
   }
 
@@ -581,7 +605,7 @@ static void handleControlPage() {
                 "</div>"
                 "<h2>Lighting</h2>"
                 "<div class='section'>"
-                "<div class='row'><div class='label'>Node</div><select id='node'></select></div>"
+                "<div class='row'><div class='label'>LED</div><select id='node'></select></div>"
                 "<div class='row'><div class='label'>Color</div><input type='color' id='color' value='#ff0000'>"
                 "<div class='buttons'><button class='btn' onclick='applyColor()'>Set</button><button class='btn-secondary' onclick='setOff()'>Off</button></div></div>"
                 "<div class='row'><div class='label'>Effect</div><select id='effect'>"
@@ -597,12 +621,18 @@ static void handleControlPage() {
                 "<script>"
                 "const nodeCount=" + String(NODE_COUNT) + ";"
                 "const nodeSel=document.getElementById('node');"
-                "for(let i=0;i<nodeCount;i++){let o=document.createElement('option');o.value=i;o.text='Node '+(i+1);nodeSel.appendChild(o);} "
+                "function renderNodes(available){"
+                "nodeSel.innerHTML='';"
+                "available.forEach((isAvailable,idx)=>{"
+                "if(isAvailable){let o=document.createElement('option');o.value=idx;o.text='LED '+(idx+1);nodeSel.appendChild(o);} "
+                "});"
+                "}"
                 "const wifiSelect=document.getElementById('wifiSsidSelect');"
                 "wifiSelect.addEventListener('change',()=>{document.getElementById('wifiSsidInput').value=wifiSelect.value;});"
                 "function fetchState(){fetch('/api/state').then(r=>r.json()).then(s=>{"
                 "document.getElementById('effect').value=s.effect;"
                 "document.getElementById('deviceName').value=s.deviceName||'';"
+                "if(Array.isArray(s.available)){renderNodes(s.available);}"
                 "});}"
                 "function fetchStatus(){fetch('/api/status').then(r=>r.json()).then(s=>{"
                 "document.getElementById('wifiSsid').innerText=s.ssid;"
@@ -729,6 +759,7 @@ void setup() {
 
   for (size_t i = 0; i < NODE_COUNT; ++i) {
     nodes[i] = {255, 0, 0, true};
+    nodeAvailable[i] = false;
   }
 
   deviceSettings.name = prefs.getString(PREF_DEVICE_NAME, "ESP32 RGB Controller");
@@ -775,4 +806,11 @@ void loop() {
   fauxmo.handle();
   server.handleClient();
   tickEffects();
+  unsigned long now = millis();
+  if (now - lastNodeScan >= NODE_SCAN_INTERVAL_MS) {
+    lastNodeScan = now;
+    for (size_t i = 0; i < NODE_COUNT; ++i) {
+      nodeAvailable[i] = probeAddress(nodeAddresses[i]);
+    }
+  }
 }
