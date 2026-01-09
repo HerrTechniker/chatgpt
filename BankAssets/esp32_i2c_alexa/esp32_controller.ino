@@ -77,6 +77,7 @@ uint16_t rainbowHue = 0;
 DeviceSettings deviceSettings;
 bool nodeAvailable[NODE_COUNT];
 bool nodeWasAvailable[NODE_COUNT];
+bool nodeHasStatus[NODE_COUNT];
 unsigned long lastNodeScan = 0;
 constexpr unsigned long NODE_SCAN_INTERVAL_MS = 5000;
 bool wifiConnected = false;
@@ -821,6 +822,7 @@ void setup() {
     nodes[i] = {255, 0, 0, true};
     nodeAvailable[i] = false;
     nodeWasAvailable[i] = false;
+    nodeHasStatus[i] = false;
   }
 
   deviceSettings.name = prefs.getString(PREF_DEVICE_NAME, "ESP32 RGB Controller");
@@ -890,12 +892,13 @@ void loop() {
       lastNodeScan = now;
       for (size_t i = 0; i < NODE_COUNT; ++i) {
         nodeAvailable[i] = probeAddress(nodeAddresses[i]);
-        if (nodeAvailable[i] != nodeWasAvailable[i]) {
+        if (!nodeHasStatus[i] || nodeAvailable[i] != nodeWasAvailable[i]) {
           Serial.print("I2C: LED ");
           Serial.print(i + 1);
           Serial.print(nodeAvailable[i] ? " verbunden" : " getrennt");
           Serial.println();
           nodeWasAvailable[i] = nodeAvailable[i];
+          nodeHasStatus[i] = true;
         }
       }
     }
