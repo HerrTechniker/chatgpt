@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.TextComponent;
 
 public class SleepListener implements Listener {
 
@@ -33,8 +35,11 @@ public class SleepListener implements Listener {
         long sleepers = players.stream().filter(Player::isSleeping).count();
         int requiredSleepers = (int) Math.ceil(players.size() * 0.5d);
         int missing = Math.max(0, requiredSleepers - (int) sleepers);
-        world.getPlayers().forEach(player -> player.sendMessage(
-                "§aSchläfer: §e" + sleepers + "§7/§e" + players.size()
-                        + "§a, fehlen: §e" + missing));
+        String message = missing == 0
+                ? "Sleeping through this night"
+                : sleepers + "/" + players.size() + " players sleeping";
+        world.getPlayers().forEach(player -> player.spigot().sendMessage(
+                ChatMessageType.ACTION_BAR,
+                TextComponent.fromLegacyText(message)));
     }
 }
