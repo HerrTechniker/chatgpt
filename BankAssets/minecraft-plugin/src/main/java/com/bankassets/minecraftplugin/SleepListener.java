@@ -1,6 +1,7 @@
 package com.bankassets.minecraftplugin;
 
 import java.util.List;
+import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,26 +21,20 @@ public class SleepListener implements Listener {
         if (event.getBedEnterResult() != PlayerBedEnterEvent.BedEnterResult.OK) {
             return;
         }
-        plugin.getServer().getScheduler().runTask(plugin, () -> trySkipNight(event.getPlayer().getWorld()));
+        plugin.getServer().getScheduler().runTask(plugin, () -> notifySleepStatus(event.getPlayer().getWorld()));
     }
 
-    private void trySkipNight(World world) {
+    private void notifySleepStatus(World world) {
+        world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 50);
         List<Player> players = world.getPlayers();
         if (players.isEmpty()) {
             return;
         }
         long sleepers = players.stream().filter(Player::isSleeping).count();
-        double ratio = (double) sleepers / players.size();
-        if (ratio >= 0.5d) {
-            world.setTime(0L);
-            world.setStorm(false);
-            world.setThundering(false);
-            for (Player player : players) {
-                if (player.isSleeping()) {
-                    player.wakeup(true);
-                }
-            }
-            world.getPlayers().forEach(p -> p.sendMessage("§a50% der Spieler schlafen – Nacht wird übersprungen."));
-        }
+        int requiredSleepers = (int) Math.ceil(players.size() * 0.5d);
+        int missing = Math.max(0, requiredSleepers - (int) sleepers);
+        world.getPlayers().forEach(player -> player.sendMessage(
+                "§aSchläfer: §e" + sleepers + "§7/§e" + players.size()
+                        + "§a, fehlen: §e" + missing));
     }
 }
