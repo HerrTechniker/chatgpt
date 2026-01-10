@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -111,7 +110,7 @@ public class Main extends JavaPlugin {
 
     private void applySleepPercentageRule() {
         for (World world : Bukkit.getWorlds()) {
-            world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 50);
+            world.setGameRuleValue("playersSleepingPercentage", "50");
         }
     }
 }

@@ -1,9 +1,10 @@
 package com.bankassets.minecraftplugin;
 
+import java.lang.reflect.Method;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 
 public class ServerListPingListener implements Listener {
 
@@ -14,9 +15,18 @@ public class ServerListPingListener implements Listener {
     }
 
     @EventHandler
-    public void onServerListPing(PaperServerListPingEvent event) {
+    public void onServerListPing(ServerListPingEvent event) {
         int onlinePlayers = Bukkit.getOnlinePlayers().size();
         int visiblePlayers = Math.max(0, onlinePlayers - plugin.getVanishedCount());
-        event.setNumPlayers(visiblePlayers);
+        setPlayerCountIfSupported(event, visiblePlayers);
+    }
+
+    private void setPlayerCountIfSupported(ServerListPingEvent event, int visiblePlayers) {
+        try {
+            Method setNumPlayers = event.getClass().getMethod("setNumPlayers", int.class);
+            setNumPlayers.invoke(event, visiblePlayers);
+        } catch (ReflectiveOperationException ignored) {
+            // Spigot does not expose a setter for the visible player count.
+        }
     }
 }

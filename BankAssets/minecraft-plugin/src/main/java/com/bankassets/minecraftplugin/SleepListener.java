@@ -1,7 +1,6 @@
 package com.bankassets.minecraftplugin;
 
 import java.util.List;
-import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +24,7 @@ public class SleepListener implements Listener {
     }
 
     private void notifySleepStatus(World world) {
-        world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 50);
+        world.setGameRuleValue("playersSleepingPercentage", "50");
         List<Player> players = world.getPlayers();
         if (players.isEmpty()) {
             return;
