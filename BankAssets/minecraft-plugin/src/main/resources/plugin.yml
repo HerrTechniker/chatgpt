@@ -1,0 +1,30 @@
+name: BankAssetsTools
+main: com.bankassets.minecraftplugin.BankAssetsPlugin
+version: 1.0.0
+api-version: '1.21'
+commands:
+  invsee:
+    description: Öffnet das Inventar eines anderen Spielers.
+    usage: /invsee <spieler>
+    permission: bankassets.invsee
+  endersee:
+    description: Öffnet die Enderchest eines anderen Spielers.
+    usage: /endersee <spieler>
+    permission: bankassets.endersee
+  enderchest:
+    description: Öffnet deine eigene Enderchest.
+    usage: /enderchest
+    permission: bankassets.enderchest
+  vanish:
+    description: Schaltet Unsichtbarkeit ohne Trankeffekt ein oder aus.
+    usage: /vanish
+    permission: bankassets.vanish
+permissions:
+  bankassets.invsee:
+    default: op
+  bankassets.endersee:
+    default: op
+  bankassets.enderchest:
+    default: true
+  bankassets.vanish:
+    default: op
