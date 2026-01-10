@@ -9,9 +9,9 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 
 public class SleepListener implements Listener {
 
-    private final BankAssetsPlugin plugin;
+    private final Main plugin;
 
-    public SleepListener(BankAssetsPlugin plugin) {
+    public SleepListener(Main plugin) {
         this.plugin = plugin;
     }
 

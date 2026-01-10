@@ -6,9 +6,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerVisibilityListener implements Listener {
 
-    private final BankAssetsPlugin plugin;
+    private final Main plugin;
 
-    public PlayerVisibilityListener(BankAssetsPlugin plugin) {
+    public PlayerVisibilityListener(Main plugin) {
         this.plugin = plugin;
     }
 
