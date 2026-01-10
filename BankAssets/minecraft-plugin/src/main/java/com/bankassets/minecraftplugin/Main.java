@@ -22,6 +22,7 @@ public class Main extends JavaPlugin {
         registerCommands();
         PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(new PlayerVisibilityListener(this), this);
+        pluginManager.registerEvents(new ServerListPingListener(this), this);
         pluginManager.registerEvents(new SleepListener(this), this);
     }
 
@@ -71,6 +72,21 @@ public class Main extends JavaPlugin {
 
     boolean isVanished(Player player) {
         return vanishedPlayers.contains(player.getUniqueId());
+    }
+
+    int getVanishedCount() {
+        return vanishedPlayers.size();
+    }
+
+    boolean toggleVanish(Player player) {
+        boolean shouldVanish = !isVanished(player);
+        setVanished(player, shouldVanish);
+        if (shouldVanish) {
+            Bukkit.broadcastMessage("§8[§4-§8]§7 " + player.getName());
+        } else {
+            Bukkit.broadcastMessage("§8[§a+§8]§7 " + player.getName());
+        }
+        return shouldVanish;
     }
 
     boolean toggleCommandFeedback() {

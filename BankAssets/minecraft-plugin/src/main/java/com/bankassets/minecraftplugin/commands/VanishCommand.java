@@ -24,8 +24,7 @@ public class VanishCommand implements CommandExecutor {
             plugin.sendFeedback(player, "§cDu hast keine Berechtigung dafür.");
             return true;
         }
-        boolean shouldVanish = !plugin.isVanished(player);
-        plugin.setVanished(player, shouldVanish);
+        boolean shouldVanish = plugin.toggleVanish(player);
         if (shouldVanish) {
             plugin.sendFeedback(player, "§aDu bist jetzt unsichtbar.");
         } else {
