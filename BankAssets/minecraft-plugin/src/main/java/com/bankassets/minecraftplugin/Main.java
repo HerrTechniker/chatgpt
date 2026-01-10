@@ -3,10 +3,13 @@ package com.bankassets.minecraftplugin;
 import com.bankassets.minecraftplugin.commands.EnderchestCommand;
 import com.bankassets.minecraftplugin.commands.InvseeCommand;
 import com.bankassets.minecraftplugin.commands.VanishCommand;
+import com.bankassets.minecraftplugin.commands.CommandFeedbackCommand;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +20,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        applyCommandFeedbackSetting(getConfig().getBoolean("command-feedback", true));
         registerCommands();
         PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(new PlayerVisibilityListener(this), this);
@@ -44,6 +49,9 @@ public class Main extends JavaPlugin {
         if (getCommand("vanish") != null) {
             getCommand("vanish").setExecutor(new VanishCommand(this));
         }
+        if (getCommand("commandfeedback") != null) {
+            getCommand("commandfeedback").setExecutor(new CommandFeedbackCommand(this));
+        }
     }
 
     void setVanished(Player player, boolean vanish) {
@@ -66,5 +74,19 @@ public class Main extends JavaPlugin {
 
     boolean isVanished(Player player) {
         return vanishedPlayers.contains(player.getUniqueId());
+    }
+
+    boolean toggleCommandFeedback() {
+        boolean enabled = !getConfig().getBoolean("command-feedback", true);
+        getConfig().set("command-feedback", enabled);
+        saveConfig();
+        applyCommandFeedbackSetting(enabled);
+        return enabled;
+    }
+
+    private void applyCommandFeedbackSetting(boolean enabled) {
+        for (World world : Bukkit.getWorlds()) {
+            world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK, enabled);
+        }
     }
 }

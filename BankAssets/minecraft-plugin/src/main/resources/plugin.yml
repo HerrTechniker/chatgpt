@@ -18,10 +18,16 @@ commands:
     usage: /vanish
     permission: bankassets.vanish
     aliases: [v]
+  commandfeedback:
+    description: Schaltet Commandrückmeldungen an oder aus.
+    usage: /commandfeedback
+    permission: bankassets.commandfeedback
 permissions:
   bankassets.invsee:
     default: op
   bankassets.enderchest:
     default: true
   bankassets.vanish:
+    default: op
+  bankassets.commandfeedback:
     default: op
