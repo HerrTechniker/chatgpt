@@ -25,6 +25,10 @@ public class PlayerVisibilityListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (plugin.clearVanishOnQuit(event.getPlayer())) {
+            event.setQuitMessage(null);
+            return;
+        }
         event.setQuitMessage("§8[§4-§8]§7 " + event.getPlayer().getName());
     }
 }

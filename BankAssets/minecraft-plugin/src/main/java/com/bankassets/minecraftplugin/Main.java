@@ -92,6 +92,14 @@ public class Main extends JavaPlugin {
         return shouldVanish;
     }
 
+    boolean clearVanishOnQuit(Player player) {
+        if (!isVanished(player)) {
+            return false;
+        }
+        vanishedPlayers.remove(player.getUniqueId());
+        return true;
+    }
+
     boolean toggleCommandFeedback() {
         boolean enabled = !getConfig().getBoolean("command-feedback", true);
         getConfig().set("command-feedback", enabled);
