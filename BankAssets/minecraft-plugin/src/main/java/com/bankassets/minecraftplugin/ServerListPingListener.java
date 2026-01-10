@@ -3,7 +3,7 @@ package com.bankassets.minecraftplugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.server.ServerListPingEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 
 public class ServerListPingListener implements Listener {
 
@@ -14,7 +14,7 @@ public class ServerListPingListener implements Listener {
     }
 
     @EventHandler
-    public void onServerListPing(ServerListPingEvent event) {
+    public void onServerListPing(PaperServerListPingEvent event) {
         int onlinePlayers = Bukkit.getOnlinePlayers().size();
         int visiblePlayers = Math.max(0, onlinePlayers - plugin.getVanishedCount());
         event.setNumPlayers(visiblePlayers);
