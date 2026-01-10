@@ -1,5 +1,6 @@
 package com.bankassets.minecraftplugin.commands;
 
+import com.bankassets.minecraftplugin.Main;
 import java.lang.reflect.Method;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -11,6 +12,12 @@ import org.bukkit.inventory.Inventory;
 
 public class EnderchestCommand implements CommandExecutor {
 
+    private final Main plugin;
+
+    public EnderchestCommand(Main plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -18,36 +25,36 @@ public class EnderchestCommand implements CommandExecutor {
             return true;
         }
         if (!player.hasPermission("bankassets.enderchest")) {
-            player.sendMessage("§cDu hast keine Berechtigung dafür.");
+            plugin.sendFeedback(player, "§cDu hast keine Berechtigung dafür.");
             return true;
         }
         if (args.length == 0) {
             player.openInventory(player.getEnderChest());
-            player.sendMessage("§aDeine Enderchest wurde geöffnet.");
+            plugin.sendFeedback(player, "§aDeine Enderchest wurde geöffnet.");
             return true;
         }
         if (args.length == 1) {
             Player target = Bukkit.getPlayerExact(args[0]);
             if (target != null) {
                 player.openInventory(target.getEnderChest());
-                player.sendMessage("§aEnderchest von §e" + target.getName() + " §ageöffnet.");
+                plugin.sendFeedback(player, "§aEnderchest von §e" + target.getName() + " §ageöffnet.");
                 return true;
             }
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
             if (!offlinePlayer.hasPlayedBefore()) {
-                player.sendMessage("§cSpieler nicht gefunden oder offline.");
+                plugin.sendFeedback(player, "§cSpieler nicht gefunden oder offline.");
                 return true;
             }
             Inventory enderChest = getOfflineEnderChest(offlinePlayer);
             if (enderChest == null) {
-                player.sendMessage("§cDie Enderchest von Offline-Spielern ist auf diesem Server nicht verfügbar.");
+                plugin.sendFeedback(player, "§cDie Enderchest von Offline-Spielern ist auf diesem Server nicht verfügbar.");
                 return true;
             }
             player.openInventory(enderChest);
-            player.sendMessage("§aEnderchest von §e" + offlinePlayer.getName() + " §ageöffnet.");
+            plugin.sendFeedback(player, "§aEnderchest von §e" + offlinePlayer.getName() + " §ageöffnet.");
             return true;
         }
-        player.sendMessage("§cBenutzung: /enderchest [spieler]");
+        plugin.sendFeedback(player, "§cBenutzung: /enderchest [spieler]");
         return true;
     }
 

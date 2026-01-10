@@ -21,15 +21,15 @@ public class VanishCommand implements CommandExecutor {
             return true;
         }
         if (!player.hasPermission("bankassets.vanish")) {
-            player.sendMessage("§cDu hast keine Berechtigung dafür.");
+            plugin.sendFeedback(player, "§cDu hast keine Berechtigung dafür.");
             return true;
         }
         boolean shouldVanish = !plugin.isVanished(player);
         plugin.setVanished(player, shouldVanish);
         if (shouldVanish) {
-            player.sendMessage("§aDu bist jetzt unsichtbar.");
+            plugin.sendFeedback(player, "§aDu bist jetzt unsichtbar.");
         } else {
-            player.sendMessage("§aDu bist wieder sichtbar.");
+            plugin.sendFeedback(player, "§aDu bist wieder sichtbar.");
         }
         return true;
     }

@@ -16,15 +16,23 @@ public class CommandFeedbackCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bankassets.commandfeedback")) {
-            sender.sendMessage("§cDu hast keine Berechtigung dafür.");
+            sendFeedback(sender, "§cDu hast keine Berechtigung dafür.");
             return true;
         }
         boolean enabled = plugin.toggleCommandFeedback();
         if (enabled) {
-            sender.sendMessage("§aCommandrückmeldungen wurden aktiviert.");
+            sendFeedback(sender, "§aCommandrückmeldungen wurden aktiviert.");
         } else {
-            sender.sendMessage("§aCommandrückmeldungen wurden deaktiviert.");
+            sendFeedback(sender, "§aCommandrückmeldungen wurden deaktiviert.");
         }
         return true;
+    }
+
+    private void sendFeedback(CommandSender sender, String message) {
+        if (sender instanceof org.bukkit.entity.Player player) {
+            plugin.sendFeedback(player, message);
+        } else {
+            sender.sendMessage(message);
+        }
     }
 }
