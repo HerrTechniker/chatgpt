@@ -1,10 +1,12 @@
 package com.bankassets.minecraftplugin;
 
 import com.bankassets.minecraftplugin.commands.CommandFeedbackCommand;
+import com.bankassets.minecraftplugin.commands.CommandAccessCommand;
 import com.bankassets.minecraftplugin.commands.EnderchestCommand;
 import com.bankassets.minecraftplugin.commands.InvseeCommand;
 import com.bankassets.minecraftplugin.commands.VanishCommand;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -52,6 +54,9 @@ public class Main extends JavaPlugin {
         }
         if (getCommand("commandfeedback") != null) {
             getCommand("commandfeedback").setExecutor(new CommandFeedbackCommand(this));
+        }
+        if (getCommand("commandaccess") != null) {
+            getCommand("commandaccess").setExecutor(new CommandAccessCommand(this));
         }
     }
 
@@ -109,6 +114,41 @@ public class Main extends JavaPlugin {
 
     boolean isCommandFeedbackEnabled() {
         return getConfig().getBoolean("command-feedback", true);
+    }
+
+    boolean isInvseeAllowed(Player player) {
+        return isPlayerAllowed("invsee-allowed", player.getUniqueId());
+    }
+
+    boolean isEnderchestAllowed(Player player) {
+        return isPlayerAllowed("enderchest-allowed", player.getUniqueId());
+    }
+
+    boolean addAllowedPlayer(String key, UUID playerId) {
+        List<String> allowed = getConfig().getStringList(key);
+        String id = playerId.toString();
+        if (allowed.contains(id)) {
+            return false;
+        }
+        allowed.add(id);
+        getConfig().set(key, allowed);
+        saveConfig();
+        return true;
+    }
+
+    boolean removeAllowedPlayer(String key, UUID playerId) {
+        List<String> allowed = getConfig().getStringList(key);
+        boolean removed = allowed.remove(playerId.toString());
+        if (removed) {
+            getConfig().set(key, allowed);
+            saveConfig();
+        }
+        return removed;
+    }
+
+    private boolean isPlayerAllowed(String key, UUID playerId) {
+        List<String> allowed = getConfig().getStringList(key);
+        return allowed.contains(playerId.toString());
     }
 
     void sendFeedback(Player player, String message) {

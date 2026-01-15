@@ -22,6 +22,9 @@ commands:
     description: Schaltet Commandrückmeldungen an oder aus.
     usage: /commandfeedback
     permission: bankassets.commandfeedback
+  commandaccess:
+    description: Verwalte die erlaubten Spieler für Invsee und Enderchest.
+    usage: /commandaccess <invsee|enderchest> <add|remove> <spieler>
 permissions:
   bankassets.invsee:
     default: op

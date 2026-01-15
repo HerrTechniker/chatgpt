@@ -28,6 +28,10 @@ public class EnderchestCommand implements CommandExecutor {
             plugin.sendFeedback(player, "§cDu hast keine Berechtigung dafür.");
             return true;
         }
+        if (!plugin.isEnderchestAllowed(player)) {
+            plugin.sendFeedback(player, "§cDu darfst diesen Command nicht benutzen.");
+            return true;
+        }
         if (args.length == 0) {
             player.openInventory(player.getEnderChest());
             plugin.sendFeedback(player, "§aDeine Enderchest wurde geöffnet.");

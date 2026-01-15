@@ -25,6 +25,10 @@ public class InvseeCommand implements CommandExecutor {
             plugin.sendFeedback(player, "§cDu hast keine Berechtigung dafür.");
             return true;
         }
+        if (!plugin.isInvseeAllowed(player)) {
+            plugin.sendFeedback(player, "§cDu darfst diesen Command nicht benutzen.");
+            return true;
+        }
         if (args.length != 1) {
             plugin.sendFeedback(player, "§cBenutzung: /invsee <spieler>");
             return true;
