@@ -1,9 +1,10 @@
 package com.bankassets.minecraftplugin;
 
-import com.bankassets.minecraftplugin.commands.CommandFeedbackCommand;
 import com.bankassets.minecraftplugin.commands.CommandAccessCommand;
+import com.bankassets.minecraftplugin.commands.CommandFeedbackCommand;
 import com.bankassets.minecraftplugin.commands.EnderchestCommand;
 import com.bankassets.minecraftplugin.commands.InvseeCommand;
+import com.bankassets.minecraftplugin.commands.RepairCommand;
 import com.bankassets.minecraftplugin.commands.VanishCommand;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,9 @@ public class Main extends JavaPlugin {
         }
         if (getCommand("commandaccess") != null) {
             getCommand("commandaccess").setExecutor(new CommandAccessCommand(this));
+        }
+        if (getCommand("repair") != null) {
+            getCommand("repair").setExecutor(new RepairCommand(this));
         }
     }
 

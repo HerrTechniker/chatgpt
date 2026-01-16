@@ -25,6 +25,10 @@ commands:
   commandaccess:
     description: Verwalte die erlaubten Spieler für Invsee und Enderchest.
     usage: /commandaccess <invsee|enderchest> <add|remove> <spieler>
+  repair:
+    description: Repariert das Item in deiner Hand auf 100%.
+    usage: /repair
+    permission: bankassets.repair
 permissions:
   bankassets.invsee:
     default: op
@@ -33,4 +37,6 @@ permissions:
   bankassets.vanish:
     default: op
   bankassets.commandfeedback:
+    default: op
+  bankassets.repair:
     default: op
