@@ -21,12 +21,16 @@ public class CommandAccessCommand implements CommandExecutor {
             sender.sendMessage("Dieses Kommando ist nur für die Konsole.");
             return true;
         }
-        if (args.length != 3) {
-            sender.sendMessage("Benutzung: /commandaccess <invsee|enderchest|effects> <add|remove> <spieler>");
+        if (args.length != 1 && args.length != 3) {
+            sender.sendMessage("Benutzung: /commandaccess <invsee|enderchest|effects> [add|remove <spieler>]");
             return true;
         }
         String listKey = resolveListKey(args[0], sender);
         if (listKey == null) {
+            return true;
+        }
+        if (args.length == 1) {
+            sender.sendMessage("Aktuelle Liste: " + formatList(listKey));
             return true;
         }
         boolean isAdd = resolveAction(args[1], sender);
@@ -72,5 +76,27 @@ public class CommandAccessCommand implements CommandExecutor {
         }
         sender.sendMessage("Unbekannte Aktion. Nutze add oder remove.");
         return false;
+    }
+
+    private String formatList(String listKey) {
+        var ids = plugin.getConfig().getStringList(listKey);
+        if (ids.isEmpty()) {
+            return "keine Einträge";
+        }
+        return ids.stream()
+                .map(this::resolveName)
+                .collect(java.util.stream.Collectors.joining(", "));
+    }
+
+    private String resolveName(String uuid) {
+        try {
+            var offlinePlayer = Bukkit.getOfflinePlayer(java.util.UUID.fromString(uuid));
+            if (offlinePlayer.getName() != null) {
+                return offlinePlayer.getName();
+            }
+        } catch (IllegalArgumentException ignored) {
+            return uuid;
+        }
+        return uuid;
     }
 }
