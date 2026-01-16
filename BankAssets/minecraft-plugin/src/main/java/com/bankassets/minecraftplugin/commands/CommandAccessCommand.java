@@ -22,7 +22,7 @@ public class CommandAccessCommand implements CommandExecutor {
             return true;
         }
         if (args.length != 3) {
-            sender.sendMessage("Benutzung: /commandaccess <invsee|enderchest> <add|remove> <spieler>");
+            sender.sendMessage("Benutzung: /commandaccess <invsee|enderchest|effects> <add|remove> <spieler>");
             return true;
         }
         String listKey = resolveListKey(args[0], sender);
@@ -56,7 +56,10 @@ public class CommandAccessCommand implements CommandExecutor {
         if ("enderchest".equalsIgnoreCase(input)) {
             return "enderchest-allowed";
         }
-        sender.sendMessage("Unbekannter Befehlstyp. Nutze invsee oder enderchest.");
+        if ("effects".equalsIgnoreCase(input)) {
+            return "effects-allowed";
+        }
+        sender.sendMessage("Unbekannter Befehlstyp. Nutze invsee, enderchest oder effects.");
         return null;
     }
 

@@ -3,6 +3,7 @@ package com.bankassets.minecraftplugin;
 import com.bankassets.minecraftplugin.commands.CommandAccessCommand;
 import com.bankassets.minecraftplugin.commands.CommandFeedbackCommand;
 import com.bankassets.minecraftplugin.commands.EnderchestCommand;
+import com.bankassets.minecraftplugin.commands.EffectsCommand;
 import com.bankassets.minecraftplugin.commands.InvseeCommand;
 import com.bankassets.minecraftplugin.commands.RepairCommand;
 import com.bankassets.minecraftplugin.commands.VanishCommand;
@@ -61,6 +62,9 @@ public class Main extends JavaPlugin {
         }
         if (getCommand("repair") != null) {
             getCommand("repair").setExecutor(new RepairCommand(this));
+        }
+        if (getCommand("effects") != null) {
+            getCommand("effects").setExecutor(new EffectsCommand(this));
         }
     }
 
@@ -126,6 +130,10 @@ public class Main extends JavaPlugin {
 
     boolean isEnderchestAllowed(Player player) {
         return isPlayerAllowed("enderchest-allowed", player.getUniqueId());
+    }
+
+    boolean isEffectsAllowed(Player player) {
+        return isPlayerAllowed("effects-allowed", player.getUniqueId());
     }
 
     boolean addAllowedPlayer(String key, UUID playerId) {

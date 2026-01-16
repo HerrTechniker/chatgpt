@@ -24,11 +24,15 @@ commands:
     permission: bankassets.commandfeedback
   commandaccess:
     description: Verwalte die erlaubten Spieler für Invsee und Enderchest.
-    usage: /commandaccess <invsee|enderchest> <add|remove> <spieler>
+    usage: /commandaccess <invsee|enderchest|effects> <add|remove> <spieler>
   repair:
     description: Repariert das Item in deiner Hand auf 100%.
     usage: /repair
     permission: bankassets.repair
+  effects:
+    description: Zeigt die aktiven Effekte eines Spielers.
+    usage: /effects <spieler>
+    permission: bankassets.effects
 permissions:
   bankassets.invsee:
     default: op
@@ -39,4 +43,6 @@ permissions:
   bankassets.commandfeedback:
     default: op
   bankassets.repair:
+    default: op
+  bankassets.effects:
     default: op
