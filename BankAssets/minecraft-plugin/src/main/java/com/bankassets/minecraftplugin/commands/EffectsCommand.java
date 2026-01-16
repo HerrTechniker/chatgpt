@@ -56,7 +56,9 @@ public class EffectsCommand implements CommandExecutor {
     private String formatEffect(PotionEffect effect) {
         String name = effect.getType().getKey().getKey().replace('_', ' ');
         int level = effect.getAmplifier() + 1;
-        int seconds = effect.getDuration() / 20;
-        return name + " " + level + " (" + seconds + "s)";
+        int totalSeconds = effect.getDuration() / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return name + " " + level + " (" + String.format("%d:%02d", minutes, seconds) + ")";
     }
 }
