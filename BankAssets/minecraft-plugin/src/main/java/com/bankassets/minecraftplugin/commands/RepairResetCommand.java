@@ -40,13 +40,31 @@ public class RepairResetCommand implements CommandExecutor {
             plugin.sendFeedback(player, "§cDieses Item hat keine Reparaturkosten.");
             return true;
         }
-        if (repairable.getRepairCost() == 0) {
+        boolean removedComponent = unsetRepairCostComponent(item);
+        boolean changed = false;
+        if (repairable.getRepairCost() != 0) {
+            repairable.setRepairCost(0);
+            item.setItemMeta(repairable);
+            changed = true;
+        }
+        if (!changed && !removedComponent) {
             plugin.sendFeedback(player, "§eKeine Reparaturkosten zum Entfernen gefunden.");
             return true;
         }
-        repairable.setRepairCost(0);
-        item.setItemMeta(repairable);
         plugin.sendFeedback(player, "§aReparaturkosten entfernt.");
         return true;
+    }
+
+    private boolean unsetRepairCostComponent(ItemStack item) {
+        try {
+            Class<?> componentTypes = Class.forName("io.papermc.paper.datacomponent.DataComponentTypes");
+            Object repairCostType = componentTypes.getField("REPAIR_COST").get(null);
+            Class<?> componentTypeClass = Class.forName("io.papermc.paper.datacomponent.DataComponentType");
+            var unsetData = item.getClass().getMethod("unsetData", componentTypeClass);
+            unsetData.invoke(item, repairCostType);
+            return true;
+        } catch (ReflectiveOperationException ignored) {
+            return false;
+        }
     }
 }
