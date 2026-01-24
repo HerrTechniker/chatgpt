@@ -6,6 +6,7 @@ import com.bankassets.minecraftplugin.commands.EnderchestCommand;
 import com.bankassets.minecraftplugin.commands.EffectsCommand;
 import com.bankassets.minecraftplugin.commands.InvseeCommand;
 import com.bankassets.minecraftplugin.commands.RepairCommand;
+import com.bankassets.minecraftplugin.commands.RepairResetCommand;
 import com.bankassets.minecraftplugin.commands.VanishCommand;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +66,9 @@ public class Main extends JavaPlugin {
         }
         if (getCommand("effects") != null) {
             getCommand("effects").setExecutor(new EffectsCommand(this));
+        }
+        if (getCommand("repairreset") != null) {
+            getCommand("repairreset").setExecutor(new RepairResetCommand(this));
         }
     }
 

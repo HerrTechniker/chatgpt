@@ -33,6 +33,10 @@ commands:
     description: Zeigt die aktiven Effekte eines Spielers.
     usage: /effects <spieler>
     permission: bankassets.effects
+  repairreset:
+    description: Entfernt Reparaturkosten/Komponenten vom Item in der Hand.
+    usage: /repairreset
+    permission: bankassets.repairreset
 permissions:
   bankassets.invsee:
     default: op
@@ -45,4 +49,6 @@ permissions:
   bankassets.repair:
     default: op
   bankassets.effects:
+    default: op
+  bankassets.repairreset:
     default: op
