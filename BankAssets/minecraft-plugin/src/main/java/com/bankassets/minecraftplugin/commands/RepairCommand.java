@@ -49,10 +49,16 @@ public class RepairCommand implements CommandExecutor {
             plugin.sendFeedback(player, "§cDu musst ein Item in der Hand halten.");
             return true;
         }
-        if (!repairItem(item)) {
+        if (!(item.getItemMeta() instanceof Damageable damageable)) {
             plugin.sendFeedback(player, "§cDieses Item kann nicht repariert werden.");
             return true;
         }
+        if (damageable.getDamage() == 0) {
+            plugin.sendFeedback(player, "§eDieses Item ist bereits vollständig repariert.");
+            return true;
+        }
+        damageable.setDamage(0);
+        item.setItemMeta(damageable);
         plugin.sendFeedback(player, "§aDas Item wurde repariert.");
         return true;
     }
@@ -74,6 +80,9 @@ public class RepairCommand implements CommandExecutor {
             return false;
         }
         if (!(item.getItemMeta() instanceof Damageable damageable)) {
+            return false;
+        }
+        if (damageable.getDamage() == 0) {
             return false;
         }
         damageable.setDamage(0);
