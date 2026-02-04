@@ -1,0 +1,54 @@
+name: BankAssetsTools
+main: com.bankassets.minecraftplugin.Main
+version: 1.0.0
+api-version: '1.21'
+commands:
+  invsee:
+    description: Öffnet das Inventar eines anderen Spielers.
+    usage: /invsee <spieler>
+    permission: bankassets.invsee
+    aliases: [inv]
+  enderchest:
+    description: Öffnet deine oder eine andere Enderchest.
+    usage: /enderchest [spieler]
+    permission: bankassets.enderchest
+    aliases: [ec]
+  vanish:
+    description: Schaltet Unsichtbarkeit ohne Trankeffekt ein oder aus.
+    usage: /vanish
+    permission: bankassets.vanish
+    aliases: [v]
+  commandfeedback:
+    description: Schaltet Commandrückmeldungen an oder aus.
+    usage: /commandfeedback
+    permission: bankassets.commandfeedback
+  commandaccess:
+    description: Verwalte die erlaubten Spieler für Invsee und Enderchest.
+    usage: /commandaccess <invsee|enderchest|effects> [add|remove <spieler>]
+  repair:
+    description: Repariert das Item in deiner Hand auf 100%.
+    usage: /repair
+    permission: bankassets.repair
+  effects:
+    description: Zeigt die aktiven Effekte eines Spielers.
+    usage: /effects <spieler>
+    permission: bankassets.effects
+  repairreset:
+    description: Entfernt Reparaturkosten/Komponenten vom Item in der Hand.
+    usage: /repairreset
+    permission: bankassets.repairreset
+permissions:
+  bankassets.invsee:
+    default: op
+  bankassets.enderchest:
+    default: true
+  bankassets.vanish:
+    default: op
+  bankassets.commandfeedback:
+    default: op
+  bankassets.repair:
+    default: op
+  bankassets.effects:
+    default: op
+  bankassets.repairreset:
+    default: op
